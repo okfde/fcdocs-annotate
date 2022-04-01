@@ -4,14 +4,13 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from filingcabinet import get_document_model
 
-
 Document = get_document_model()
 
-TYPE_MANUAL = 'TM'
-TYPE_AUTOMATED = 'TA'
+TYPE_MANUAL = "TM"
+TYPE_AUTOMATED = "TA"
 FEATURE_ANNOTATION_TYPES = [
-    (TYPE_MANUAL, _('Manual Annotation')),
-    (TYPE_AUTOMATED, _('Automated Annotations'))
+    (TYPE_MANUAL, _("Manual Annotation")),
+    (TYPE_AUTOMATED, _("Automated Annotations")),
 ]
 
 
@@ -43,9 +42,7 @@ class FeatureAnnotation(models.Model):
         return self.document.title
 
     def get_all_annotations(self):
-        return self.document.featureannotation_set.filter(
-            type=TYPE_MANUAL
-        )
+        return self.document.featureannotation_set.filter(type=TYPE_MANUAL)
 
     def check_final(self):
         annotations = self.get_all_annotations()
@@ -69,6 +66,3 @@ class FeatureAnnotation(models.Model):
             value, count = c.most_common()[0]
             result_dict[k] = value
         return result_dict
-
-
-

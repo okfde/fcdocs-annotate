@@ -1,6 +1,5 @@
-from django import forms
-
 from annotation.models import Feature
+from django import forms
 
 
 class FeatureForm(forms.Form):
@@ -9,6 +8,6 @@ class FeatureForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for feature in Feature.objects.all():
-            key = 'feature_{}'.format(str(feature.id))
+            key = "feature_{}".format(str(feature.id))
             label = feature.question
             self.fields[key] = forms.BooleanField(label=label, required=False)

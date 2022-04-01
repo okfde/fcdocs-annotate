@@ -1,25 +1,23 @@
 from django.contrib import admin
-
-from filingcabinet.models import (
-    Page,
-    PageAnnotation,
-    Document,
-    DocumentPortal
-)
 from filingcabinet.admin import (
+    DocumentBaseAdmin,
+    DocumentPortalAdmin,
     PageAdmin,
     PageAnnotationAdmin,
-    DocumentBaseAdmin,
-    DocumentPortalAdmin
 )
+from filingcabinet.models import Document, DocumentPortal, Page, PageAnnotation
 
 from .models import Feature, FeatureAnnotation
 
 
 class FeatureAnnotationAdmin(admin.ModelAdmin):
     model = FeatureAnnotation
-    list_display = ('document', 'features', 'final', )
-    ordering = ('-document',)
+    list_display = (
+        "document",
+        "features",
+        "final",
+    )
+    ordering = ("-document",)
 
 
 admin.site.register(Page, PageAdmin)

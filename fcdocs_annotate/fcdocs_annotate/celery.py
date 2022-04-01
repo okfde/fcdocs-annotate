@@ -7,9 +7,8 @@ from configurations import importer  # noqa
 
 importer.install(check_options=True)
 
-from django.conf import settings  # noqa
-
 from celery import Celery  # noqa
+from django.conf import settings  # noqa
 
 app = Celery("fcdocs_annotate")
 app.config_from_object("django.conf:settings", namespace="CELERY", force=True)
