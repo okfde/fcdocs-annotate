@@ -24,6 +24,7 @@
         pip install -r requirements.txt
 
 1.  Let Django create all required database tables:
+
         cd fcdocs_annotate
         ./manage.py migrate
 
