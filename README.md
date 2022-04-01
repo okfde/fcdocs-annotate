@@ -22,6 +22,11 @@
 1.  Install all dependencies.
 
         pip install -r requirements.txt
+        
+1.  Build frontend
+
+        npm install
+        yarn build
 
 1.  Let Django create all required database tables:
 
