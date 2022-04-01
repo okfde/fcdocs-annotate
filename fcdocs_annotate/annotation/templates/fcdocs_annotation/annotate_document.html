@@ -40,8 +40,11 @@
                         {{ feature_form.document }}
                         {% for field in feature_form.visible_fields %}
                         <div class="mb-3 form-check">
-                            <input type="checkbox" name="{{ field.name }}" class="form-check-input" id="{{ field.name }}">
-                            <label class="form-check-label" for="{{ field.name }}">{{ field.label }}</label>
+                            <label>{{ field.label }}</label>
+                            {% if field.help_text %}
+                            <p><small>{{ field.help_text}}</small></p>
+                            {% endif %}
+                            {{ field }}
                         </div>
                         {% endfor %}
                         <button type="submit" class="btn btn-primary">Submit</button>
