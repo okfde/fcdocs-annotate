@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from configurations import values
 from django.core.management.utils import get_random_secret_key
 
@@ -78,21 +79,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "fcdocs_annotate.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-if os.getenv("FCDOCS_POSTGRES_NAME") and os.getenv("FCDOCS_POSTGRES_USER"):
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": os.getenv("FCDOCS_POSTGRES_NAME"),
-            "USER": os.getenv("FCDOCS_POSTGRES_USER"),
-            "PASSWORD": os.getenv("FCDOCS_POSTGRES_PASSWORD"),
-            "HOST": "localhost",
-            "PORT": "",
-        }
-    }
+if os.getenv("DATABASE"):
+    DATABASES = {"default": dj_database_url.parse(os.getenv("DATABASE"))}
 else:
     DATABASES = {
         "default": {
