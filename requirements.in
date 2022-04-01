@@ -5,5 +5,6 @@ django-configurations
 django-filingcabinet
 djangorestframework
 django-taggit
+python-dotenv
 
 -e git+https://github.com/okfde/django-filingcabinet.git@fcdocs_annotate#egg=django-filingcabinet

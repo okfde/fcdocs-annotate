@@ -6,3 +6,5 @@ db.sqlite3
 yarn-error.log
 package-lock.json
 static
+venv
+.env
