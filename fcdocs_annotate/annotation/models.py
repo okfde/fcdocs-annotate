@@ -17,7 +17,7 @@ FEATURE_ANNOTATION_TYPES = [
 class Feature(models.Model):
     name = models.CharField(max_length=500)
     question = models.CharField(max_length=500)
-    describtion = models.TextField(blank=True)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
