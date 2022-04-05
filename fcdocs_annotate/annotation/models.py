@@ -18,6 +18,7 @@ class Feature(models.Model):
     name = models.CharField(max_length=500)
     question = models.CharField(max_length=500)
     description = models.TextField(blank=True)
+    documents_needed = models.PositiveIntegerField(default=10)
 
     def __str__(self):
         return self.name
@@ -52,6 +53,7 @@ class FeatureAnnotation(models.Model):
         elif annotations.count() > 1:
             features_list = [a.features for a in annotations] + [self.features]
             features = self.merge_features(features_list)
+            annotations.delete()
             return True, features
         return False, self.features
 
