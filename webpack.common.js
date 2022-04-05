@@ -10,7 +10,8 @@ module.exports = {
       './fcdocs_annotate/assets/scss/style.scss',
       'bootstrap',
       'bootstrap-icons/font/bootstrap-icons.css'
-    ]
+    ],
+    filingcabinet: '@okfde/filingcabinet/frontend/javascript/filingcabinet.js'
   },
   resolve: {
     alias: {

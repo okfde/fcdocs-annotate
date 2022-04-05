@@ -10,6 +10,7 @@
         "@babel/core": "^7.14.6",
         "@babel/preset-env": "^7.14.5",
         "@fortawesome/fontawesome-free": "^6.0.0",
+        "@okfde/filingcabinet": "git@github.com:okfde/django-filingcabinet.git",
         "@popperjs/core": "^2.9.2",
         "assert": "^1.3.0",
         "babel-loader": "^8.2.2",
