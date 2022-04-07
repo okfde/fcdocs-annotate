@@ -1,21 +1,40 @@
-from annotation.models import Feature
+from annotation.models import FeatureAnnotation, Feature
 from django import forms
+from django.forms import formset_factory
+from filingcabinet import get_document_model
 
 
-class FeatureForm(forms.Form):
-    document = forms.CharField(widget=forms.HiddenInput())
+Document = get_document_model()
+
+
+class FeatureAnnotationForm(forms.ModelForm):
+    document = forms.ModelChoiceField(
+        queryset=Document.objects.all(),
+        widget=forms.HiddenInput())
+    feature = forms.ModelChoiceField(
+        queryset=Feature.objects.all(),
+        widget=forms.HiddenInput())
+
+    class Meta:
+        model = FeatureAnnotation
+        fields = ['value', 'document', 'feature']
+
+    def get_label(self):
+        if self.initial.get('feature'):
+            try:
+                feature_id = self.initial.get('feature')
+                return Feature.objects.get(id=feature_id).question
+            except Feature.DoesNotExist:
+                return ''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for feature in Feature.objects.all():
-            key = "feature_{}".format(str(feature.id))
-            label = feature.question
-            help = feature.description
-            options = (('true', 'Ja'), ('false', 'Nein'))
-            self.fields[key] = forms.ChoiceField(
-                choices=options,
-                widget=forms.RadioSelect(attrs={'class': "list-unstyled"}),
-                required=True,
-                label=label,
-                help_text=help
-            )
+        options = ((True, 'Ja'), (False, 'Nein'))
+        self.fields['value'] = forms.ChoiceField(
+            choices=options,
+            widget=forms.RadioSelect(attrs={'class': "list-unstyled"}),
+            label=self.get_label()
+        )
+
+
+feature_annotation_formset = formset_factory(FeatureAnnotationForm, extra=0)

@@ -1,6 +1,5 @@
-from annotation.forms import FeatureForm
-from annotation.models import TYPE_MANUAL, FeatureAnnotation
-from django.db.models import Exists, OuterRef
+from annotation.forms import feature_annotation_formset
+from annotation.models import TYPE_MANUAL, Feature
 from django.http import HttpResponseRedirect
 from django.utils.functional import cached_property
 from django.views.generic import DetailView
@@ -19,17 +18,20 @@ class AnnotateDocumentView(DetailView):
         return self.get_object()
 
     def get_queryset(self):
-        sudbquery = FeatureAnnotation.objects.filter(
-            final=True, type=TYPE_MANUAL, document=OuterRef("id")
-        )
-        documents = Document.objects.annotate(has_annotation=Exists(sudbquery))
-        annotated_documents = self.request.session.get("annotated_documents", [])
-        return documents.filter(has_annotation=False).exclude(
-            id__in=annotated_documents
-        )
+        documents = Feature.objects.documents_for_annotation()
+        users_documents = self.request.session.get("annotated_documents", [])
+        return documents.exclude(id__in=users_documents)
 
     def get_object(self, queryset=None):
         return self.get_queryset().first()
+
+    def get_initial_data(self):
+        initial = []
+        for feature in Feature.objects.all():
+            initial.append(
+                {'document': self.object.id, 'feature': feature.id}
+            )
+        return initial
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -43,27 +45,28 @@ class AnnotateDocumentView(DetailView):
                 )
             )
             ctx.update(
-                {"feature_form": FeatureForm(initial={"document": str(self.object.id)})}
+                {"feature_form_set": feature_annotation_formset(initial=self.get_initial_data())}
             )
         return ctx
 
     def get_progress_for_user(self):
         annotated_documents = self.request.session.get("annotated_documents", [])
-        document_count = Document.objects.all().count()
+        document_count = Feature.objects.documents_for_annotation().count()
         if not (len(annotated_documents) == 0 or document_count == 0):
             return int(len(annotated_documents) * 100 / document_count)
         return 0
 
     def post(self, request, *args, **kwargs):
-        feature_form = FeatureForm(request.POST)
-        if feature_form.is_valid():
-            cleaned_data = feature_form.cleaned_data
-            document_id = cleaned_data.pop("document")
-            document = Document.objects.get(id=document_id)
-            FeatureAnnotation.objects.create(
-                document=document, features=cleaned_data, type=TYPE_MANUAL
-            )
-            annotated_documents = request.session.get("annotated_documents", [])
-            annotated_documents.append(int(document_id))
+        form_set = feature_annotation_formset(request.POST)
+        if form_set.is_valid():
+            for form in form_set:
+                if form.is_valid():
+                    annotation = form.save(commit=False)
+                    annotation.type = TYPE_MANUAL
+                    annotation.final = False
+                    annotation.save()
+            annotated_documents = request.session.get(
+                "annotated_documents", [])
+            annotated_documents.append(int(self.object.id))
             request.session["annotated_documents"] = annotated_documents
-            return HttpResponseRedirect(self.request.path_info)
+        return HttpResponseRedirect(self.request.path_info)

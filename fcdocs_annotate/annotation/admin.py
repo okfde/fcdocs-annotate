@@ -14,14 +14,15 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
     model = FeatureAnnotation
     list_display = (
         "get_document_title",
-        "features",
+        "value",
+        "feature",
         "final",
     )
     ordering = ("-document",)
 
     def get_document_title(self, obj):
         SHORTEN = 30
-        title = obj.document.title
+        title = '{} {}'.format(str(obj.document.id), obj.document.title)
         if len(title) > SHORTEN:
             return title[:SHORTEN] + '..'
         return title
@@ -36,10 +37,7 @@ class FeatureAdmin(admin.ModelAdmin):
     )
 
     def get_document_count(self, obj):
-        dict_key = "features__feature_{}".format(obj.id)
-        filters = {'final': True}
-        filters[dict_key] = 'true'
-        return FeatureAnnotation.objects.filter(**filters).count()
+        return obj.final_annotation_count()
 
     get_document_count.short_description = "Number of documents with that feature"
 
