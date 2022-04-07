@@ -22,19 +22,15 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
 
     def get_document_title(self, obj):
         SHORTEN = 30
-        title = '{} {}'.format(str(obj.document.id), obj.document.title)
+        title = "{} {}".format(str(obj.document.id), obj.document.title)
         if len(title) > SHORTEN:
-            return title[:SHORTEN] + '..'
+            return title[:SHORTEN] + ".."
         return title
 
 
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
-    list_display = (
-        "name",
-        "documents_needed",
-        "get_document_count"
-    )
+    list_display = ("name", "documents_needed", "get_document_count")
 
     def get_document_count(self, obj):
         return obj.final_annotation_count()

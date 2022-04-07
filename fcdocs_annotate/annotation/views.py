@@ -28,9 +28,7 @@ class AnnotateDocumentView(DetailView):
     def get_initial_data(self):
         initial = []
         for feature in Feature.objects.all():
-            initial.append(
-                {'document': self.object.id, 'feature': feature.id}
-            )
+            initial.append({"document": self.object.id, "feature": feature.id})
         return initial
 
     def get_context_data(self, **kwargs):
@@ -45,7 +43,11 @@ class AnnotateDocumentView(DetailView):
                 )
             )
             ctx.update(
-                {"feature_form_set": feature_annotation_formset(initial=self.get_initial_data())}
+                {
+                    "feature_form_set": feature_annotation_formset(
+                        initial=self.get_initial_data()
+                    )
+                }
             )
         return ctx
 
@@ -65,8 +67,7 @@ class AnnotateDocumentView(DetailView):
                     annotation.type = TYPE_MANUAL
                     annotation.final = False
                     annotation.save()
-            annotated_documents = request.session.get(
-                "annotated_documents", [])
+            annotated_documents = request.session.get("annotated_documents", [])
             annotated_documents.append(int(self.object.id))
             request.session["annotated_documents"] = annotated_documents
         return HttpResponseRedirect(self.request.path_info)

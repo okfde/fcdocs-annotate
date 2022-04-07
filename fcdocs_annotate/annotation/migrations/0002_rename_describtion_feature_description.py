@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('fcdocs_annotation', '0001_initial'),
+        ("fcdocs_annotation", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='feature',
-            old_name='describtion',
-            new_name='description',
+            model_name="feature",
+            old_name="describtion",
+            new_name="description",
         ),
     ]
