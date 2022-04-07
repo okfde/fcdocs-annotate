@@ -59,7 +59,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "fcdocs_annotate.urls"
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "fcdocs_annotate.wsgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 if os.getenv("DATABASE"):
     DATABASES = {"default": dj_database_url.parse(os.getenv("DATABASE"))}
