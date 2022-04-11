@@ -91,8 +91,8 @@ class FeatureAnnotation(models.Model):
 
     def get_other_annotations(self):
         return self.document.featureannotation_set.filter(
-            feature=self.feature, type=TYPE_MANUAL
-        )
+            feature=self.feature, type=TYPE_MANUAL, document=self.document
+        ).exclude(id=self.id)
 
     def check_final(self):
         annotations = self.get_other_annotations()

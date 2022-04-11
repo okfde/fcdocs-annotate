@@ -25,7 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include((api_router.urls, "api"))),
     path("document", include("filingcabinet.urls")),
-    path("annotate", AnnotateDocumentView.as_view(), name="document-detail"),
+    path("annotate/", AnnotateDocumentView.as_view(), name="document-detail"),
 ]
 
 if settings.DEBUG:

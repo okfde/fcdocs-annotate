@@ -60,6 +60,7 @@ class AnnotateDocumentView(DetailView):
 
     def post(self, request, *args, **kwargs):
         form_set = feature_annotation_formset(request.POST)
+
         if form_set.is_valid():
             for form in form_set:
                 if form.is_valid():

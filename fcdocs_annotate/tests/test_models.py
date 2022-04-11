@@ -60,3 +60,42 @@ def test_feature_manager(feature_factory, document_factory, feature_annotation_f
 
     assert Feature.objects.documents_for_annotation().last() == d1
     assert d2 in Feature.objects.documents_for_annotation()
+
+
+@pytest.mark.django_db
+def test_feature_annotation_logic(
+    feature_factory, document_factory, feature_annotation_factory
+):
+
+    f1 = feature_factory()
+    d1 = document_factory()
+
+    feature_annotation_factory(
+        feature=f1, document=d1, value=True, final=False, type=TYPE_MANUAL
+    )
+
+    assert FeatureAnnotation.objects.all().count() == 1
+    assert FeatureAnnotation.objects.filter(final=True).count() == 0
+
+    feature_annotation_factory(
+        feature=f1, document=d1, value=True, final=False, type=TYPE_MANUAL
+    )
+
+    assert FeatureAnnotation.objects.all().count() == 1
+    assert FeatureAnnotation.objects.filter(final=True).count() == 1
+
+    f2 = feature_factory()
+    d2 = document_factory()
+
+    feature_annotation_factory(
+        feature=f2, document=d2, value=True, final=False, type=TYPE_MANUAL
+    )
+    feature_annotation_factory(
+        feature=f2, document=d2, value=False, final=False, type=TYPE_MANUAL
+    )
+    assert FeatureAnnotation.objects.filter(feature=f2, document=d2).count() == 2
+
+    feature_annotation_factory(
+        feature=f2, document=d2, value=True, final=False, type=TYPE_MANUAL
+    )
+    assert FeatureAnnotation.objects.filter(feature=f2, document=d2).count() == 1
