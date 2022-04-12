@@ -34,3 +34,28 @@ def formset_data():
         return formset_data
 
     return make_formset_data
+
+
+@pytest.fixture
+def get_documents():
+    def make_documents(number):
+        documents = []
+        for _i in range(number):
+            documents.append(DocumentFactory(public=True))
+        return tuple(documents)
+
+    return make_documents
+
+
+@pytest.fixture
+def get_features():
+    def make_features(number, documents_needed=None):
+        features = []
+        for _i in range(number):
+            if not documents_needed:
+                features.append(FeatureFactory())
+            else:
+                features.append(FeatureFactory(documents_needed=documents_needed))
+        return tuple(features)
+
+    return make_features

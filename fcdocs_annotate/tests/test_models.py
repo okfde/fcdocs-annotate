@@ -6,16 +6,10 @@ Document = get_document_model()
 
 
 @pytest.mark.django_db
-def test_feature_manager(feature_factory, document_factory, feature_annotation_factory):
+def test_feature_manager(get_features, get_documents, feature_annotation_factory):
 
-    d1 = document_factory()
-    d2 = document_factory()
-    d3 = document_factory()
-    d4 = document_factory()
-
-    f1 = feature_factory(documents_needed=3)
-    f2 = feature_factory(documents_needed=3)
-    f3 = feature_factory(documents_needed=3)
+    d1, d2, d3, d4 = get_documents(4)
+    f1, f2, f3 = get_features(3, documents_needed=3)
 
     assert Document.objects.all().count() == 4
     assert Feature.objects.all().count() == 3
