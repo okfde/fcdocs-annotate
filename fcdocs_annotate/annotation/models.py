@@ -88,7 +88,7 @@ class Feature(models.Model):
 
 
 class FeatureAnnotation(models.Model):
-    session = models.CharField(max_length=255)
+    session = models.CharField(max_length=255, blank=True)
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
     type = models.CharField(
         max_length=2,
