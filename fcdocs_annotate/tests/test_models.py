@@ -100,3 +100,14 @@ def test_feature_annotation_logic(
         feature=f2, document=d2, value=True, final=False, type=TYPE_MANUAL
     )
     assert FeatureAnnotation.objects.filter(feature=f2, document=d2).count() == 1
+
+
+@pytest.mark.django_db
+def test_documents_for_annotation(
+    get_documents, feature_factory, feature_annotation_factory
+):
+    documents = get_documents(1000)
+    document = documents[340]
+    feature = feature_factory()
+    feature_annotation_factory(document=document, feature=feature, session="abc")
+    assert Feature.objects.documents_for_annotation().first() == document
