@@ -1,7 +1,8 @@
 import collections
 
 from django.db import models
-from django.db.models import Count, Exists, F, OuterRef, Q
+from django.db.models import Count, Exists, F, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from filingcabinet import get_document_model
 
@@ -28,6 +29,14 @@ class FeatureManager(models.Manager):
             )
         )
 
+    def with_document_session_annotation(self, document, session):
+        subquery = FeatureAnnotation.objects.filter(
+            document=document, session=session, feature=OuterRef("id")
+        )
+        return self.annotation_needed().annotate(
+            document_session_annotation_exists=Exists(subquery)
+        )
+
     def annotation_needed(self):
         return self.with_final_annotations_count().filter(
             final_annotations_count__lt=F("documents_needed")
@@ -43,6 +52,21 @@ class FeatureManager(models.Manager):
                 "-has_annotation"
             )
         return Document.objects.none()
+
+    def documents_done(self, session):
+        feature_count = Feature.objects.all().count()
+        subquery = Subquery(
+            FeatureAnnotation.objects.filter(
+                session=session.session_key, document_id=OuterRef("id")
+            )
+            .order_by()
+            .values("document")
+            .annotate(count=Count("pk"))
+            .values("count"),
+            output_field=models.IntegerField(),
+        )
+        docs = Document.objects.annotate(annotated_count=Coalesce(subquery, 0))
+        return docs.filter(annotated_count__gte=feature_count)
 
 
 class Feature(models.Model):
@@ -64,8 +88,8 @@ class Feature(models.Model):
 
 
 class FeatureAnnotation(models.Model):
+    session = models.CharField(max_length=255)
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
-    features = models.JSONField(default=dict)
     type = models.CharField(
         max_length=2,
         choices=FEATURE_ANNOTATION_TYPES,
@@ -73,9 +97,12 @@ class FeatureAnnotation(models.Model):
     )
     final = models.BooleanField(default=False)
     feature = models.ForeignKey(
-        Feature, on_delete=models.CASCADE, null=True, related_name="feature_annotations"
+        Feature, on_delete=models.CASCADE, related_name="feature_annotations"
     )
     value = models.BooleanField(null=True)
+
+    class Meta:
+        unique_together = ("session", "feature", "document")
 
     def save(self, *args, **kwargs):
         if not self.final and self.type == TYPE_MANUAL:

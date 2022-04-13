@@ -15,26 +15,33 @@ def test_feature_manager(get_features, get_documents, feature_annotation_factory
     assert Feature.objects.all().count() == 3
 
     fa1 = feature_annotation_factory(
-        document=d1, feature=f1, value=True, final=True, type=TYPE_MANUAL
+        document=d1, feature=f1, value=True, final=True, type=TYPE_MANUAL, session="a"
     )
     feature_annotation_factory(
-        document=d1, feature=f1, value=True, final=True, type=TYPE_MANUAL
+        document=d1,
+        feature=f1,
+        value=True,
+        final=True,
+        type=TYPE_MANUAL,
+        session="b",
     )
     feature_annotation_factory(
-        document=d1, feature=f1, value=True, final=True, type=TYPE_MANUAL
+        document=d1, feature=f1, value=True, final=True, type=TYPE_MANUAL, session="c"
     )
     feature_annotation_factory(
-        document=d1, feature=f1, value=True, final=True, type=TYPE_MANUAL
-    )
-    feature_annotation_factory(document=d2, feature=f2, final=False, type=TYPE_MANUAL)
-    feature_annotation_factory(
-        document=d3, feature=f3, final=False, type=TYPE_AUTOMATED
+        document=d1, feature=f1, value=True, final=True, type=TYPE_MANUAL, session="d"
     )
     feature_annotation_factory(
-        document=d4, feature=f1, final=True, value=True, type=TYPE_MANUAL
+        document=d2, feature=f2, final=False, type=TYPE_MANUAL, session="e"
     )
     feature_annotation_factory(
-        document=d4, feature=f1, final=True, value=True, type=TYPE_MANUAL
+        document=d3, feature=f3, final=False, type=TYPE_AUTOMATED, session="f"
+    )
+    feature_annotation_factory(
+        document=d4, feature=f1, final=True, value=True, type=TYPE_MANUAL, session="g"
+    )
+    feature_annotation_factory(
+        document=d4, feature=f1, final=True, value=True, type=TYPE_MANUAL, session="h"
     )
 
     assert fa1.feature == f1

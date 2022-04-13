@@ -1,5 +1,5 @@
 import factory
-from annotation.models import Feature, FeatureAnnotation
+from annotation.models import TYPE_MANUAL, Feature, FeatureAnnotation
 from filingcabinet import get_document_model
 
 Document = get_document_model()
@@ -24,3 +24,5 @@ class FeatureAnnotationFactory(factory.django.DjangoModelFactory):
 
     document = factory.SubFactory(DocumentFactory)
     feature = factory.SubFactory(FeatureFactory)
+    session = factory.Faker("random_digit")
+    type = TYPE_MANUAL

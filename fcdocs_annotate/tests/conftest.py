@@ -59,3 +59,22 @@ def get_features():
         return tuple(features)
 
     return make_features
+
+
+@pytest.fixture
+def get_annotations():
+    def make_annotations(number, documents, features, session, final=False):
+        annotations = []
+        for i in range(number):
+            for feature in features:
+                annotations.append(
+                    FeatureAnnotationFactory(
+                        document=documents[i],
+                        feature=feature,
+                        session=session.session_key,
+                        final=final,
+                    )
+                )
+        return tuple(annotations)
+
+    return make_annotations

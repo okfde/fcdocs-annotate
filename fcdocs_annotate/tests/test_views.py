@@ -1,5 +1,3 @@
-import random
-
 import pytest
 from annotation.models import Feature, FeatureAnnotation
 
@@ -9,9 +7,6 @@ from annotation.models import Feature, FeatureAnnotation
     "document_count, answered_documents, progress",
     [
         (3, 0, 0),
-        (4, 0, 0),
-        (5, 0, 0),
-        (6, 0, 0),
         (100, 0, 0),
         (3, 1, 33),
         (4, 1, 25),
@@ -19,23 +14,36 @@ from annotation.models import Feature, FeatureAnnotation
         (6, 1, 16),
         (100, 1, 1),
         (3, 3, 100),
+        (100, 100, 100),
     ],
 )
 def test_annotate_view_get(
-    client, get_documents, get_features, document_count, answered_documents, progress
+    client,
+    get_documents,
+    get_features,
+    document_count,
+    get_annotations,
+    answered_documents,
+    progress,
 ):
 
+    session = client.session
+    features = get_features(2)
     documents = get_documents(document_count)
-    annotated_documents = random.sample(documents, answered_documents)
+    get_annotations(answered_documents, documents, features, session)
+    annotated_documents = Feature.objects.documents_done(session).values_list(
+        "id", flat=True
+    )
+
+    assert len(annotated_documents) == answered_documents
+
     try:
-        document = [d for d in documents if d not in annotated_documents][0]
+        documents_without_annotation = [
+            d for d in documents if d.id not in annotated_documents
+        ]
+        document = documents_without_annotation[0]
     except IndexError:
         document = None
-    get_features(2)
-
-    session = client.session
-    session["annotated_documents"] = [d.id for d in annotated_documents]
-    session.save()
 
     response = client.get("/annotate/")
     assert response.context_data.get("object") == document
@@ -60,7 +68,6 @@ def test_annotate_view_post(get_documents, get_features, formset_data, client):
     for entry in response.context_data.get("feature_form_set").initial:
         assert entry.get("document") == d2.id
         assert entry.get("feature") in [f1.id, f2.id]
-    assert client.session["annotated_documents"] == [d1.id]
 
     data = formset_data(formdata=[(f1.id, d2.id, False), (f2.id, d2.id, True)])
 
@@ -69,7 +76,6 @@ def test_annotate_view_post(get_documents, get_features, formset_data, client):
     for entry in response.context_data.get("feature_form_set").initial:
         assert entry.get("document") == d3.id
         assert entry.get("feature") in [f1.id, f2.id]
-    assert client.session["annotated_documents"] == [d1.id, d2.id]
 
     data = formset_data(formdata=[(f1.id, d3.id, True), (f2.id, d3.id, True)])
 
@@ -77,23 +83,31 @@ def test_annotate_view_post(get_documents, get_features, formset_data, client):
     assert not response.context_data.get("object")
     assert response.context_data.get("progress") == 100
     assert not response.context_data.get("feature_form_set")
-    assert client.session["annotated_documents"] == [d1.id, d2.id, d3.id]
 
     assert FeatureAnnotation.objects.filter(final=True).count() == 0
     assert Feature.objects.annotation_needed().count() == 2
 
+
+@pytest.mark.django_db
+def test_annotate_view_clear_session_after_feature_added(
+    get_documents, get_features, get_annotations, client
+):
+    documents = get_documents(3)
+    features = get_features(1)
     session = client.session
-    session["annotated_documents"] = [d1.id, d2.id]
     session.save()
 
-    assert session["annotated_documents"] == [d1.id, d2.id]
+    get_annotations(3, documents, features, session, final=True)
 
     response = client.get("/annotate/")
-    assert response.context_data.get("object") == d3
-    assert response.context_data.get("progress") == 66
+    assert not response.context_data.get("object")
+    assert response.context_data.get("progress") == 100
+    assert not response.context_data.get("feature_form_set")
 
-    data = formset_data(formdata=[(f1.id, d3.id, True), (f2.id, d3.id, True)])
-    response = client.post("/annotate/", data, follow=True)
+    get_features(1)
 
-    assert FeatureAnnotation.objects.filter(final=True).count() == 2
-    assert Feature.objects.annotation_needed().count() == 1
+    response = client.get("/annotate/")
+    assert response.context_data.get("object") == documents[0]
+    assert response.context_data.get("progress") == 0
+    formset = response.context_data.get("feature_form_set")
+    assert len(formset.initial) == 1
