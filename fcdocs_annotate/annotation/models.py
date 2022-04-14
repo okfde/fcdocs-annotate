@@ -48,16 +48,20 @@ class FeatureManager(models.Manager):
             subquery = FeatureAnnotation.objects.filter(
                 feature__in=feature_list, document=OuterRef("id")
             )
-            return Document.objects.annotate(has_annotation=Exists(subquery)).order_by(
-                "-has_annotation"
+            return (
+                self.documents_not_finally_annotated()
+                .annotate(has_annotation=Exists(subquery))
+                .order_by("-has_annotation")
             )
         return Document.objects.none()
 
-    def documents_done(self, session):
+    def documents_done_by_user(self, session):
+        if hasattr(session, "session_key"):
+            session = session.session_key
         feature_count = Feature.objects.all().count()
         subquery = Subquery(
             FeatureAnnotation.objects.filter(
-                session=session.session_key, document_id=OuterRef("id")
+                session=session, document_id=OuterRef("id")
             )
             .order_by()
             .values("document")
@@ -67,6 +71,19 @@ class FeatureManager(models.Manager):
         )
         docs = Document.objects.annotate(annotated_count=Coalesce(subquery, 0))
         return docs.filter(annotated_count__gte=feature_count)
+
+    def documents_not_finally_annotated(self):
+        feature_count = Feature.objects.all().count()
+        subquery = Subquery(
+            FeatureAnnotation.objects.filter(final=True, document_id=OuterRef("id"))
+            .order_by()
+            .values("document")
+            .annotate(count=Count("pk"))
+            .values("count"),
+            output_field=models.IntegerField(),
+        )
+        docs = Document.objects.annotate(final_count=Coalesce(subquery, 0))
+        return docs.filter(final_count__lt=feature_count)
 
 
 class Feature(models.Model):

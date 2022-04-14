@@ -20,7 +20,7 @@ class AnnotateDocumentView(DetailView):
 
     def get_queryset(self):
         documents = Feature.objects.documents_for_annotation()
-        users_documents = Feature.objects.documents_done(
+        users_documents = Feature.objects.documents_done_by_user(
             session=self.request.session
         ).values_list("id", flat=True)
         return documents.exclude(id__in=users_documents)
@@ -61,11 +61,13 @@ class AnnotateDocumentView(DetailView):
         return ctx
 
     def get_progress_for_user(self):
-        annotated_documents = Feature.objects.documents_done(
+        annotated_documents = Feature.objects.documents_done_by_user(
             self.request.session
         ).values_list("id", flat=True)
         document_count = Feature.objects.documents_for_annotation().count()
-        if not (len(annotated_documents) == 0 or document_count == 0):
+        if not (
+            len(annotated_documents) == 0 or document_count == 0
+        ) and document_count >= len(annotated_documents):
             return int(len(annotated_documents) * 100 / document_count)
         return 0
 

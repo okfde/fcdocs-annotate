@@ -31,7 +31,7 @@ def test_annotate_view_get(
     features = get_features(2)
     documents = get_documents(document_count)
     get_annotations(answered_documents, documents, features, session)
-    annotated_documents = Feature.objects.documents_done(session).values_list(
+    annotated_documents = Feature.objects.documents_done_by_user(session).values_list(
         "id", flat=True
     )
 
@@ -97,12 +97,14 @@ def test_annotate_view_clear_session_after_feature_added(
     session = client.session
     session.save()
 
-    get_annotations(3, documents, features, session, final=True)
+    get_annotations(2, documents, features, session, final=True)
+
+    assert Feature.objects.documents_for_annotation().count() == 1
 
     response = client.get("/annotate/")
-    assert not response.context_data.get("object")
-    assert response.context_data.get("progress") == 100
-    assert not response.context_data.get("feature_form_set")
+    assert response.context_data.get("object") == documents[-1]
+    assert response.context_data.get("progress") == 0
+    assert len(response.context_data.get("feature_form_set").initial) == 1
 
     get_features(1)
 

@@ -64,6 +64,8 @@ def get_features():
 @pytest.fixture
 def get_annotations():
     def make_annotations(number, documents, features, session, final=False):
+        if hasattr(session, "session_key"):
+            session = session.session_key
         annotations = []
         for i in range(number):
             for feature in features:
@@ -71,7 +73,7 @@ def get_annotations():
                     FeatureAnnotationFactory(
                         document=documents[i],
                         feature=feature,
-                        session=session.session_key,
+                        session=session,
                         final=final,
                     )
                 )

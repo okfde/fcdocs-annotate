@@ -59,9 +59,6 @@ def test_feature_manager(get_features, get_documents, feature_annotation_factory
     assert f1 not in Feature.objects.annotation_needed()
     assert f2 in Feature.objects.annotation_needed()
 
-    assert Feature.objects.documents_for_annotation().last() == d1
-    assert d2 in Feature.objects.documents_for_annotation()
-
 
 @pytest.mark.django_db
 def test_feature_annotation_logic(
@@ -107,7 +104,68 @@ def test_documents_for_annotation(
     get_documents, feature_factory, feature_annotation_factory
 ):
     documents = get_documents(1000)
-    document = documents[340]
+    d1 = documents[340]
+    d2 = documents[730]
+
+    user_1_session = "abc"
+    user_2_session = "def"
     feature = feature_factory()
-    feature_annotation_factory(document=document, feature=feature, session="abc")
-    assert Feature.objects.documents_for_annotation().first() == document
+
+    # Annotations for user 1
+    feature_annotation_factory(
+        document=d1, feature=feature, value=True, session=user_1_session
+    )
+    feature_annotation_factory(
+        document=d2, feature=feature, value=True, session=user_1_session
+    )
+
+    # no final annotations exist
+    assert FeatureAnnotation.objects.filter(final=True).count() == 0
+
+    # list of documents is sorted with annotated documents first
+    documents_for_annotation = Feature.objects.documents_for_annotation()
+    assert documents_for_annotation.first() == d1
+    assert documents_for_annotation[1] == d2
+    assert documents_for_annotation.count() == 1000
+
+    # Annotations for user 2
+    feature_annotation_factory(
+        document=d1, feature=feature, session=user_2_session, value=True
+    )
+    feature_annotation_factory(
+        document=d2, feature=feature, session=user_2_session, value=True
+    )
+
+    # as user 2 did same annotation as user 1 final annotations exist now
+    assert FeatureAnnotation.objects.filter(final=True).count() == 2
+    assert FeatureAnnotation.objects.filter(final=True).first().document == d1
+    assert FeatureAnnotation.objects.filter(final=True).last().document == d2
+
+    # list of documents is sorted with annotated documents first, documents with final annotation excluded
+    documents_for_annotation = Feature.objects.documents_for_annotation()
+    assert documents_for_annotation.first() == documents[0]
+    assert documents_for_annotation[1] == documents[1]
+    assert documents_for_annotation.count() == 998
+
+    documents_for_annotation = Feature.objects.documents_for_annotation()
+    users_documents = Feature.objects.documents_done_by_user(
+        session=user_1_session
+    ).values_list("id", flat=True)
+
+    assert list(users_documents) == []
+    documents_for_user = documents_for_annotation.exclude(id__in=users_documents)
+    assert documents_for_user.count() == 998
+    assert documents_for_user.first() == documents[0]
+    assert d1.id not in list(documents_for_user.values_list("id", flat=True))
+    assert d2.id not in list(documents_for_user.values_list("id", flat=True))
+
+    documents_for_annotation = Feature.objects.documents_for_annotation()
+    users_documents = Feature.objects.documents_done_by_user(
+        session=user_2_session
+    ).values_list("id", flat=True)
+
+    assert d1.id in users_documents
+    documents_for_user = documents_for_annotation.exclude(id__in=users_documents)
+    assert documents_for_user.count() == 998
+    assert d1.id not in list(documents_for_user.values_list("id", flat=True))
+    assert d2.id not in list(documents_for_user.values_list("id", flat=True))
