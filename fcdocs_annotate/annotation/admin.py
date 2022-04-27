@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
 from filingcabinet.admin import (
     DocumentBaseAdmin,
     DocumentPortalAdmin,
@@ -7,7 +8,7 @@ from filingcabinet.admin import (
 )
 from filingcabinet.models import Document, DocumentPortal, Page, PageAnnotation
 
-from .models import Feature, FeatureAnnotation
+from .models import Feature, FeatureAnnotation, FeatureAnnotationDraft
 
 
 class FeatureAnnotationAdmin(admin.ModelAdmin):
@@ -16,7 +17,6 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
         "get_document_title",
         "value",
         "feature",
-        "final",
     )
     ordering = ("-document",)
 
@@ -26,6 +26,16 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
         if len(title) > SHORTEN:
             return title[:SHORTEN] + ".."
         return title
+
+
+class FeatureAnnotationDraftAdmin(admin.ModelAdmin):
+    model = FeatureAnnotationDraft
+    list_display = (
+        "session",
+        "document_id",
+        "value",
+        "feature",
+    )
 
 
 class FeatureAdmin(admin.ModelAdmin):
@@ -38,9 +48,14 @@ class FeatureAdmin(admin.ModelAdmin):
     get_document_count.short_description = "Number of documents with that feature"
 
 
-admin.site.register(Page, PageAdmin)
-admin.site.register(PageAnnotation, PageAnnotationAdmin)
-admin.site.register(Document, DocumentBaseAdmin)
-admin.site.register(DocumentPortal, DocumentPortalAdmin)
 admin.site.register(Feature, FeatureAdmin)
+admin.site.register(FeatureAnnotationDraft, FeatureAnnotationDraftAdmin)
 admin.site.register(FeatureAnnotation, FeatureAnnotationAdmin)
+
+try:
+    admin.site.register(Page, PageAdmin)
+    admin.site.register(PageAnnotation, PageAnnotationAdmin)
+    admin.site.register(Document, DocumentBaseAdmin)
+    admin.site.register(DocumentPortal, DocumentPortalAdmin)
+except AlreadyRegistered:
+    pass

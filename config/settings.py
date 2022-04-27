@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "rest_framework",
     "taggit",
-    "annotation",
+    "fcdocs_annotate.annotation.apps.AnnotationConfig",
     "filingcabinet",
     "django_json_widget",
 ]

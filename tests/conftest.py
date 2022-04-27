@@ -1,11 +1,17 @@
 import pytest
 from pytest_factoryboy import register
 
-from .factories import DocumentFactory, FeatureAnnotationFactory, FeatureFactory
+from tests.factories import (
+    DocumentFactory,
+    FeatureAnnotationDraftFactory,
+    FeatureAnnotationFactory,
+    FeatureFactory,
+)
 
 register(DocumentFactory)
 register(FeatureFactory)
 register(FeatureAnnotationFactory)
+register(FeatureAnnotationDraftFactory)
 
 
 @pytest.fixture
@@ -62,20 +68,31 @@ def get_features():
 
 
 @pytest.fixture
-def get_annotations():
-    def make_annotations(number, documents, features, session, final=False):
+def get_annotation_drafts():
+    def make_annotation_drafts(number, documents, features, session):
         if hasattr(session, "session_key"):
             session = session.session_key
         annotations = []
         for i in range(number):
             for feature in features:
                 annotations.append(
-                    FeatureAnnotationFactory(
-                        document=documents[i],
-                        feature=feature,
-                        session=session,
-                        final=final,
+                    FeatureAnnotationDraftFactory(
+                        document=documents[i], feature=feature, session=session
                     )
+                )
+        return tuple(annotations)
+
+    return make_annotation_drafts
+
+
+@pytest.fixture
+def get_annotations():
+    def make_annotations(number, documents, features):
+        annotations = []
+        for i in range(number):
+            for feature in features:
+                annotations.append(
+                    FeatureAnnotationFactory(document=documents[i], feature=feature)
                 )
         return tuple(annotations)
 

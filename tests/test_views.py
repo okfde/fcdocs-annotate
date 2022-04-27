@@ -1,20 +1,25 @@
 import pytest
-from annotation.models import Feature, FeatureAnnotation
+
+from fcdocs_annotate.annotation.models import (
+    Feature,
+    FeatureAnnotation,
+    FeatureAnnotationDraft,
+)
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "document_count, answered_documents, progress",
+    "document_count, answered_documents",
     [
-        (3, 0, 0),
-        (100, 0, 0),
-        (3, 1, 33),
-        (4, 1, 25),
-        (5, 1, 20),
-        (6, 1, 16),
-        (100, 1, 1),
-        (3, 3, 100),
-        (100, 100, 100),
+        (3, 0),
+        (100, 0),
+        (3, 1),
+        (4, 1),
+        (5, 1),
+        (6, 1),
+        (100, 1),
+        (3, 3),
+        (100, 100),
     ],
 )
 def test_annotate_view_get(
@@ -22,18 +27,17 @@ def test_annotate_view_get(
     get_documents,
     get_features,
     document_count,
-    get_annotations,
+    get_annotation_drafts,
     answered_documents,
-    progress,
 ):
 
     session = client.session
     features = get_features(2)
     documents = get_documents(document_count)
-    get_annotations(answered_documents, documents, features, session)
-    annotated_documents = Feature.objects.documents_done_by_user(session).values_list(
-        "id", flat=True
-    )
+    get_annotation_drafts(answered_documents, documents, features, session)
+    annotated_documents = FeatureAnnotationDraft.objects.users_documents(
+        session
+    ).values_list("id", flat=True)
 
     assert len(annotated_documents) == answered_documents
 
@@ -47,7 +51,6 @@ def test_annotate_view_get(
 
     response = client.get("/annotate/")
     assert response.context_data.get("object") == document
-    assert response.context_data.get("progress") == progress
     if answered_documents < document_count:
         formset = response.context_data.get("feature_form_set")
         assert len(formset.initial) == 2
@@ -81,35 +84,33 @@ def test_annotate_view_post(get_documents, get_features, formset_data, client):
 
     response = client.post("/annotate/", data, follow=True)
     assert not response.context_data.get("object")
-    assert response.context_data.get("progress") == 100
     assert not response.context_data.get("feature_form_set")
 
-    assert FeatureAnnotation.objects.filter(final=True).count() == 0
+    assert FeatureAnnotationDraft.objects.all().count() == 6
+    assert FeatureAnnotation.objects.all().count() == 0
     assert Feature.objects.annotation_needed().count() == 2
 
 
 @pytest.mark.django_db
 def test_annotate_view_clear_session_after_feature_added(
-    get_documents, get_features, get_annotations, client
+    get_documents, get_features, get_annotation_drafts, client
 ):
     documents = get_documents(3)
     features = get_features(1)
     session = client.session
     session.save()
 
-    get_annotations(2, documents, features, session, final=True)
+    get_annotation_drafts(2, documents, features, session)
 
-    assert Feature.objects.documents_for_annotation().count() == 1
+    assert Feature.objects.documents_for_annotation(session).count() == 1
 
     response = client.get("/annotate/")
     assert response.context_data.get("object") == documents[-1]
-    assert response.context_data.get("progress") == 0
     assert len(response.context_data.get("feature_form_set").initial) == 1
 
     get_features(1)
 
     response = client.get("/annotate/")
     assert response.context_data.get("object") == documents[0]
-    assert response.context_data.get("progress") == 0
     formset = response.context_data.get("feature_form_set")
     assert len(formset.initial) == 1

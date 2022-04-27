@@ -1,12 +1,13 @@
-from annotation.models import Feature, FeatureAnnotation
 from django import forms
 from django.forms import formset_factory
 from filingcabinet import get_document_model
 
+from .models import Feature, FeatureAnnotationDraft
+
 Document = get_document_model()
 
 
-class FeatureAnnotationForm(forms.ModelForm):
+class FeatureAnnotationDraftForm(forms.ModelForm):
     document = forms.ModelChoiceField(
         queryset=Document.objects.all(), widget=forms.HiddenInput()
     )
@@ -15,7 +16,7 @@ class FeatureAnnotationForm(forms.ModelForm):
     )
 
     class Meta:
-        model = FeatureAnnotation
+        model = FeatureAnnotationDraft
         fields = ["value", "document", "feature"]
 
     def get_label(self):
@@ -36,4 +37,4 @@ class FeatureAnnotationForm(forms.ModelForm):
         )
 
 
-feature_annotation_formset = formset_factory(FeatureAnnotationForm, extra=0)
+feature_annotation_draft_formset = formset_factory(FeatureAnnotationDraftForm, extra=0)

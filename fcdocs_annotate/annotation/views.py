@@ -1,11 +1,12 @@
-from annotation.forms import feature_annotation_formset
-from annotation.models import TYPE_MANUAL, Feature
 from django.contrib.sessions.models import Session
 from django.http import HttpResponseRedirect
 from django.utils.functional import cached_property
 from django.views.generic import DetailView
 from filingcabinet import get_document_model
 from filingcabinet.views import get_document_viewer_context, get_viewer_preferences
+
+from .forms import feature_annotation_draft_formset
+from .models import Feature
 
 Document = get_document_model()
 
@@ -18,31 +19,26 @@ class AnnotateDocumentView(DetailView):
     def object(self):
         return self.get_object()
 
+    @cached_property
+    def documents(self):
+        return self.get_queryset()
+
     def get_queryset(self):
-        documents = Feature.objects.documents_for_annotation()
-        users_documents = Feature.objects.documents_done_by_user(
-            session=self.request.session
-        ).values_list("id", flat=True)
-        return documents.exclude(id__in=users_documents)
+        return Feature.objects.documents_for_annotation(self.request.session)
 
     def get_object(self, queryset=None):
-        return self.get_queryset().first()
+        return self.documents.first()
 
     def get_initial_data(self):
         initial = []
-        document = self.object
-        session = self.request.session.session_key
-        features = Feature.objects.with_document_session_annotation(
-            document, session
-        ).filter(document_session_annotation_exists=False)
+        features = Feature.objects.annotation_needed()
         for feature in features:
-            initial.append({"document": self.object.id, "feature": feature.id})
-
+            if feature.needs_annotation(self.request.session, self.object):
+                initial.append({"document": self.object.id, "feature": feature.id})
         return initial
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx.update({"progress": self.get_progress_for_user()})
         if self.object:
             ctx.update(
                 get_document_viewer_context(
@@ -53,26 +49,15 @@ class AnnotateDocumentView(DetailView):
             )
             ctx.update(
                 {
-                    "feature_form_set": feature_annotation_formset(
+                    "feature_form_set": feature_annotation_draft_formset(
                         initial=self.get_initial_data()
                     )
                 }
             )
         return ctx
 
-    def get_progress_for_user(self):
-        annotated_documents = Feature.objects.documents_done_by_user(
-            self.request.session
-        ).values_list("id", flat=True)
-        document_count = Feature.objects.documents_for_annotation().count()
-        if not (
-            len(annotated_documents) == 0 or document_count == 0
-        ) and document_count >= len(annotated_documents):
-            return int(len(annotated_documents) * 100 / document_count)
-        return 0
-
     def post(self, request, *args, **kwargs):
-        form_set = feature_annotation_formset(request.POST)
+        form_set = feature_annotation_draft_formset(request.POST)
 
         if form_set.is_valid():
             if not self.request.session.session_key:
@@ -81,8 +66,6 @@ class AnnotateDocumentView(DetailView):
             for form in form_set:
                 if form.is_valid():
                     annotation = form.save(commit=False)
-                    annotation.type = TYPE_MANUAL
-                    annotation.final = False
                     annotation.session = session
                     annotation.save()
         return HttpResponseRedirect(self.request.path_info)
