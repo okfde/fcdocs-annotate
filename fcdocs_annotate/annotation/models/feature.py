@@ -1,5 +1,6 @@
 from django.db import models
-from django.db.models import Count, Exists, F, Max, OuterRef, Q
+from django.db.models import Count, Exists, F, Max, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce
 from filingcabinet import get_document_model
 
 from .feature_annotation import TYPE_MANUAL, FeatureAnnotation
@@ -35,6 +36,21 @@ class FeatureManager(models.Manager):
             document_session_annotation_exists=Exists(subquery_session)
         )
 
+    def features_not_done_by_user(self, session):
+        session = self._get_session_key(session)
+        subquery = Subquery(
+            FeatureAnnotationDraft.objects.filter(value=True, session=session, feature_id=OuterRef("id"))
+            .order_by()
+            .values("feature")
+            .annotate(count=Count("pk"))
+            .values("count"),
+            output_field=models.IntegerField(),
+        )
+        features = self.all().annotate(
+            user_true_value_count=Coalesce(subquery, 0)
+        )
+        return features.filter(user_true_value_count__lt=F("documents_needed"))
+
     def max_annotations_needed(self):
         return (
             self.all().aggregate(Max("documents_needed")).get("documents_needed__max")
@@ -60,8 +76,8 @@ class FeatureManager(models.Manager):
             documents = self.unfinished_documents_for_user(session)
             if not documents:
                 user_documents = FeatureAnnotationDraft.objects.users_documents(session)
-                feature_max = self.max_annotations_needed()
-                if user_documents.count() >= feature_max:
+                feature_not_done = self.features_not_done_by_user(session)
+                if not feature_not_done:
                     return Document.objects.none()
                 else:
                     annotated_documents_ids = (
