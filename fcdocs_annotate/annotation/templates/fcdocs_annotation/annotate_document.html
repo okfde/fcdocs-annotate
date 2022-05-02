@@ -28,8 +28,8 @@
                 <div class="col">
                     {% include "filingcabinet/_document_viewer.html" with object=object %}
                 </div>
-                <div class="col sticky-top">
-                    <form method="POST">
+                <div class="col">
+                    <form method="POST" class="sticky-top">
                         {% csrf_token %}
                         {{ feature_form_set.management_form }}
                         {% for form in feature_form_set %}

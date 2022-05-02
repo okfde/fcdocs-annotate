@@ -7,7 +7,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 module.exports = {
   entry: {
     fcdocs_annotate: [
-      './fcdocs_annotate/assets/scss/style.scss',
+      './assets/scss/style.scss',
       'bootstrap',
       'bootstrap-icons/font/bootstrap-icons.css'
     ],
@@ -21,7 +21,7 @@ module.exports = {
   },
   output: {
     library: '[name]',
-    path: path.resolve('./fcdocs_annotate/static/'),
+    path: path.resolve('./static/'),
     publicPath: '/static/',
     filename: 'js/[name].js',
     chunkFilename: 'js/[name].js',
