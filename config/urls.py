@@ -11,6 +11,7 @@ from filingcabinet.api_views import (
 )
 from rest_framework.routers import DefaultRouter
 
+from fcdocs_annotate.annotation.api import FeatureViewSet
 from fcdocs_annotate.annotation.views import AnnotateDocumentView
 
 api_router = DefaultRouter()
@@ -20,6 +21,7 @@ api_router.register(
 )
 api_router.register(r"page", PageViewSet, basename="page")
 api_router.register(r"pageannotation", PageAnnotationViewSet, basename="pageannotation")
+api_router.register(r"feature", FeatureViewSet, basename="feature")
 
 
 urlpatterns = [
