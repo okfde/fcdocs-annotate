@@ -43,7 +43,9 @@
         {% endblock document_main %}
     {% else %}
     <div class="container">
-        <div>{% translate 'All done! Thanks a lot for your support' %}</div>
+        <div class="alert alert-success mt-3" role="alert">
+            {% translate 'All done! Thanks a lot for your support.' %}
+        </div>
     </div>
     {% endif %}
 
