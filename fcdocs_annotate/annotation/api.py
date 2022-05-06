@@ -1,4 +1,3 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
 from .models import Feature
@@ -11,5 +10,3 @@ class FeatureViewSet(viewsets.ReadOnlyModelViewSet):
     )
     serializer_class = FeatureSerializer
     permission_classes = []
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["id", "name", "question"]
