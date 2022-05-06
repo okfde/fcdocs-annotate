@@ -36,7 +36,7 @@ class AnnotationDraftDocumentsManager(AbstractAnnotationManager):
         from .feature import Feature
 
         session = self._get_session_key(session)
-        feature_count = Feature.objects.all().count()
+        feature_count = Feature.objects.annotation_needed().count()
         documents = self.documents_with_user_count(session)
         return documents.filter(user_count__gte=feature_count)
 
@@ -44,7 +44,7 @@ class AnnotationDraftDocumentsManager(AbstractAnnotationManager):
         from .feature import Feature
 
         session = self._get_session_key(session)
-        feature_count = Feature.objects.all().count()
+        feature_count = Feature.objects.annotation_needed().count()
         documents = self.documents_with_user_count(session)
         return documents.exclude(user_count__gte=feature_count)
 
