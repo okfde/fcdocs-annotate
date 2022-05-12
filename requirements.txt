@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
--e git+https://github.com/okfde/django-filingcabinet.git@fcdocs_annotate#egg=django-filingcabinet
+-e git+https://github.com/okfde/django-filingcabinet.git@master#egg=django-filingcabinet
     # via -r requirements.in
 amqp==5.1.0
     # via kombu
