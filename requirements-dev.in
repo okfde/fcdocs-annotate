@@ -1,0 +1,8 @@
+-r requirements.in
+
+black
+flake8
+pre-commit
+pytest
+pytest-factoryboy
+pytest-django
