@@ -15,7 +15,7 @@ we use [django-filingcabinet](https://github.com/okfde/django-filingcabinet)
 The features that can be annotated and how many documents with a certain feature are needed.
 
 ### FeatureAnnotationDraft
-Annotations created by the user. Users are recognised by session. Each user may only annotate a document/feature combination once. If there are two annotations with the same value (yes or no), a feature annotation is created.
+Annotations created by the user. Users are recognised by session. Each user may only annotate a document/feature combination once. If there are two annotation drafts for the same document/feature combination with the same value (yes or no), a feature annotation is created.
 
 ### FeatureAnnotation
 Final annotations that can be queried via the API and can be further used.
