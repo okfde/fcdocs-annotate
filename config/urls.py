@@ -12,7 +12,10 @@ from filingcabinet.api_views import (
 from rest_framework.routers import DefaultRouter
 
 from fcdocs_annotate.annotation.api import FeatureViewSet
-from fcdocs_annotate.annotation.views import AnnotateDocumentView
+from fcdocs_annotate.annotation.views import (
+    AnnotateDocumentView,
+    AnnotationsOverviewView,
+)
 
 api_router = DefaultRouter()
 api_router.register(r"document", DocumentViewSet, basename="document")
@@ -25,10 +28,11 @@ api_router.register(r"feature", FeatureViewSet, basename="feature")
 
 
 urlpatterns = [
+    path("", AnnotationsOverviewView.as_view()),
     path("admin/", admin.site.urls),
     path("api/", include((api_router.urls, "api"))),
     path("document", include("filingcabinet.urls")),
-    path("annotate/", AnnotateDocumentView.as_view(), name="document-detail"),
+    path("annotate/", AnnotateDocumentView.as_view(), name="annotate-document"),
 ]
 
 if settings.DEBUG:

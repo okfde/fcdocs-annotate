@@ -1,7 +1,7 @@
 from django.contrib.sessions.models import Session
 from django.http import HttpResponseRedirect
 from django.utils.functional import cached_property
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from filingcabinet import get_document_model
 from filingcabinet.views import get_document_viewer_context, get_viewer_preferences
 
@@ -9,6 +9,10 @@ from .forms import feature_annotation_draft_formset
 from .models import Feature
 
 Document = get_document_model()
+
+
+class AnnotationsOverviewView(TemplateView):
+    template_name = "fcdocs_annotation/annotations_overview.html"
 
 
 class AnnotateDocumentView(DetailView):
