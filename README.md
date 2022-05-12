@@ -2,7 +2,7 @@
 
 ## Main concept
 
-The idea behind this application is that users can annotate documents with predefined, customisable features. These features can be e.g: This document is a letter or this document has been redacted. Users have to decide for each document whether it has this feature or not. If there are enough documents with a certain feature (e.g. letters), this feature is ready.
+The idea behind this application is that users can annotate documents with predefined, customisable features. These features can be e.g: This document is a letter or this document has been redacted. Users have to decide for each document whether it has this feature or not. If there are enough documents with a certain feature (e.g. letters), this feature is done.
 
 For a final annotation, at least two identical annotations from two different users are needed. If there are only two different annotations, a third annotation is needed and the majority decides on the final annotation.
 
