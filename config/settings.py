@@ -149,3 +149,5 @@ CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_ROUTES = {"filingcabinet.tasks.*": {"queue": "document"}}
 CELERY_TIMEZONE = "UTC"
 TESSERACT_DATA_PATH = values.Value("/usr/local/share/tessdata")
+
+FCDOCS_ANNOTATE_PUBLISH_DOCUMENTS = True

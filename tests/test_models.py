@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 from filingcabinet import get_document_model
 
 from fcdocs_annotate.annotation.models import (
@@ -236,3 +237,21 @@ def test_documents_for_annotation(
     # user_1 gets documents[2] to annotate
     documents_for_annotation = Feature.objects.documents_for_annotation(user_1_session)
     assert documents_for_annotation.first() == documents[2]
+
+
+@pytest.mark.django_db
+def test_publish_signal(document_factory):
+
+    d1 = document_factory(public=False)
+    assert d1.public
+
+    settings.FCDOCS_ANNOTATE_PUBLISH_DOCUMENTS = False
+
+    d1 = document_factory(public=False)
+    assert not d1.public
+
+    del settings.FCDOCS_ANNOTATE_PUBLISH_DOCUMENTS
+    assert not hasattr(settings, "FCDOCS_ANNOTATE_PUBLISH_DOCUMENTS")
+
+    d1 = document_factory(public=False)
+    assert not d1.public
