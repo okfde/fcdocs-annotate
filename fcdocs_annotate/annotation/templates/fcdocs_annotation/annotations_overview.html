@@ -1,0 +1,27 @@
+{% extends 'filingcabinet/base.html' %}
+{% load static i18n %}
+
+{% block css %}
+{{ block.super }}
+<link href="{% static 'css/fcdocs_annotate.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="border p-3">
+                <h1 class="text-center">{% translate "Document Annotations" %}</h1>
+                <h2 class="text-center">{% translate "Let's get startet!" %}</h2>
+                <p>To add annotations you have to upload some documents and add some features. So follow the following steps:</p>
+                <ol>
+                    <li>Upload some Documents in the <a target="_blank" href="{% url 'admin:filingcabinet_document_changelist' %}">admin area.</a></li>
+                    <li>Add some features <a target="_blank" href="{% url 'admin:fcdocs_annotation_feature_changelist' %}">admin area.</a></li>
+                    <li><a href="{% url 'annotate-document' %}">Start annotating.</a></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
