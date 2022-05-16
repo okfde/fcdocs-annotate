@@ -8,7 +8,7 @@ from filingcabinet.admin import (
 )
 from filingcabinet.models import Document, DocumentPortal, Page, PageAnnotation
 
-from .models import Feature, FeatureAnnotation, FeatureAnnotationDraft
+from .models import TYPE_MANUAL, Feature, FeatureAnnotation, FeatureAnnotationDraft
 
 
 class FeatureAnnotationAdmin(admin.ModelAdmin):
@@ -36,6 +36,18 @@ class FeatureAnnotationDraftAdmin(admin.ModelAdmin):
         "value",
         "feature",
     )
+
+    actions = ["make_finalized"]
+
+    @admin.action(description="Finalize selected drafts")
+    def make_finalized(modeladmin, request, queryset):
+        for draft in queryset:
+            FeatureAnnotation.objects.get_or_create(
+                defaults={"value": draft.value},
+                document=draft.document,
+                feature=draft.feature,
+                type=TYPE_MANUAL,
+            )
 
 
 class FeatureAdmin(admin.ModelAdmin):

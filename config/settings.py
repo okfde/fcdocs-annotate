@@ -151,3 +151,8 @@ CELERY_TIMEZONE = "UTC"
 TESSERACT_DATA_PATH = values.Value("/usr/local/share/tessdata")
 
 FCDOCS_ANNOTATE_PUBLISH_DOCUMENTS = True
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 100,
+}
