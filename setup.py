@@ -8,15 +8,7 @@ setup(
     license="MIT",
     url="https://github.com/okfde/fcdocs-annotate",
     install_requires=[
-        "celery",
-        "Django",
-        "django_celery_beat",
-        "django-configurations",
-        "django-filingcabinet",
-        "djangorestframework",
-        "django-taggit",
-        "dj-database-url",
-        "python-dotenv",
+        "django-filingcabinet"
     ],
     packages=find_packages(),
     include_package_data=True,
