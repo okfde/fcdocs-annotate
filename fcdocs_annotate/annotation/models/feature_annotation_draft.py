@@ -18,6 +18,7 @@ class AnnotationDraftDocumentsManager(AbstractAnnotationManager):
 
     def documents_with_annotation_drafts(self):
         return Document.objects.filter(
+            public=True,
             id__in=self.documents_with_annotation_drafts_ids()
         )
 

@@ -87,7 +87,7 @@ class FeatureManager(models.Manager):
                     document_ids = list(annotated_documents_ids) + list(
                         user_documents_ids
                     )
-                    return Document.objects.all().exclude(id__in=document_ids)
+                    return Document.objects.filter(public=True).exclude(id__in=document_ids)
             return documents
         return Document.objects.none()
 

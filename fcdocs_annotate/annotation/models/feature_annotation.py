@@ -23,7 +23,9 @@ class AnnotationDocumentsManager(AbstractAnnotationManager):
         )
 
     def documents_with_annotations(self):
-        return Document.objects.filter(id__in=self.documents_with_annotations_ids())
+        return Document.objects.filter(
+            public=True,
+            id__in=self.documents_with_annotations_ids())
 
     def documents_without_annotations(self):
         document_ids = self.all().values_list("document_id", flat=True)
