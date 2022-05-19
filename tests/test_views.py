@@ -1,5 +1,4 @@
 import pytest
-
 from fcdocs_annotate.annotation.models import (
     Feature,
     FeatureAnnotation,

@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Count, Exists, F, Max, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
+
 from filingcabinet import get_document_model
 
 from .feature_annotation import TYPE_MANUAL, FeatureAnnotation
@@ -39,16 +40,16 @@ class FeatureManager(models.Manager):
     def features_not_done_by_user(self, session):
         session = self._get_session_key(session)
         subquery = Subquery(
-            FeatureAnnotationDraft.objects.filter(value=True, session=session, feature_id=OuterRef("id"))
+            FeatureAnnotationDraft.objects.filter(
+                value=True, session=session, feature_id=OuterRef("id")
+            )
             .order_by()
             .values("feature")
             .annotate(count=Count("pk"))
             .values("count"),
             output_field=models.IntegerField(),
         )
-        features = self.all().annotate(
-            user_true_value_count=Coalesce(subquery, 0)
-        )
+        features = self.all().annotate(user_true_value_count=Coalesce(subquery, 0))
         return features.filter(user_true_value_count__lt=F("documents_needed"))
 
     def max_annotations_needed(self):
@@ -87,7 +88,9 @@ class FeatureManager(models.Manager):
                     document_ids = list(annotated_documents_ids) + list(
                         user_documents_ids
                     )
-                    return Document.objects.filter(public=True).exclude(id__in=document_ids)
+                    return Document.objects.filter(public=True).exclude(
+                        id__in=document_ids
+                    )
             return documents
         return Document.objects.none()
 

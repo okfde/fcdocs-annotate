@@ -2,6 +2,7 @@ import collections
 
 from django.db import models
 from django.db.models.functions import Coalesce
+
 from filingcabinet import get_document_model
 
 from .abstract_annotation import AbstractAnnotation, AbstractAnnotationManager
@@ -18,8 +19,7 @@ class AnnotationDraftDocumentsManager(AbstractAnnotationManager):
 
     def documents_with_annotation_drafts(self):
         return Document.objects.filter(
-            public=True,
-            id__in=self.documents_with_annotation_drafts_ids()
+            public=True, id__in=self.documents_with_annotation_drafts_ids()
         )
 
     def documents_without_annotation_drafts(self):

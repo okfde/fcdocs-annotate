@@ -1,12 +1,12 @@
-import pytest
 from django.conf import settings
-from filingcabinet import get_document_model
 
+import pytest
 from fcdocs_annotate.annotation.models import (
     Feature,
     FeatureAnnotation,
     FeatureAnnotationDraft,
 )
+from filingcabinet import get_document_model
 
 Document = get_document_model()
 

@@ -1,12 +1,11 @@
 import factory
-from filingcabinet import get_document_model
-
 from fcdocs_annotate.annotation.models import (
     TYPE_MANUAL,
     Feature,
     FeatureAnnotation,
     FeatureAnnotationDraft,
 )
+from filingcabinet import get_document_model
 
 Document = get_document_model()
 

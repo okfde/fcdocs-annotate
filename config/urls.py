@@ -3,6 +3,12 @@ from django.conf.urls import include
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+
+from fcdocs_annotate.annotation.api import FeatureViewSet
+from fcdocs_annotate.annotation.views import (
+    AnnotateDocumentView,
+    AnnotationsOverviewView,
+)
 from filingcabinet.api_views import (
     DocumentCollectionViewSet,
     DocumentViewSet,
@@ -10,12 +16,6 @@ from filingcabinet.api_views import (
     PageViewSet,
 )
 from rest_framework.routers import DefaultRouter
-
-from fcdocs_annotate.annotation.api import FeatureViewSet
-from fcdocs_annotate.annotation.views import (
-    AnnotateDocumentView,
-    AnnotationsOverviewView,
-)
 
 api_router = DefaultRouter()
 api_router.register(r"document", DocumentViewSet, basename="document")

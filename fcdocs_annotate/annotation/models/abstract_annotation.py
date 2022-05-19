@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Count, OuterRef, Subquery
+
 from filingcabinet import get_document_model
 
 Document = get_document_model()

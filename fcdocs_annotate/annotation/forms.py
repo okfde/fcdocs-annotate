@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import formset_factory
+
 from filingcabinet import get_document_model
 
 from .models import Feature, FeatureAnnotationDraft
