@@ -31,7 +31,7 @@ class AnnotateDocumentView(DetailView):
         return Feature.objects.documents_for_annotation(self.request.session)
 
     def get_object(self, queryset=None):
-        return self.documents.first()
+        return self.documents.order_by("?").first()
 
     def get_initial_data(self):
         initial = []

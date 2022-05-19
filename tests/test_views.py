@@ -40,17 +40,13 @@ def test_annotate_view_get(
     ).values_list("id", flat=True)
 
     assert len(annotated_documents) == answered_documents
-
-    try:
-        documents_without_annotation = [
-            d for d in documents if d.id not in annotated_documents
-        ]
-        document = documents_without_annotation[0]
-    except IndexError:
-        document = None
+    documents_without_annotation = [
+        d for d in documents if d.id not in annotated_documents
+    ]
 
     response = client.get("/annotate/")
-    assert response.context_data.get("object") == document
+    if documents_without_annotation:
+        assert response.context_data.get("object") in documents_without_annotation
     if answered_documents < document_count:
         formset = response.context_data.get("feature_form_set")
         assert len(formset.initial) == 2
