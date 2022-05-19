@@ -89,8 +89,6 @@ future==0.18.2
     # via django-json-widget
 identify==2.5.0
     # via pre-commit
-importlib-resources==5.7.1
-    # via jsonschema
 inflection==0.5.1
     # via pytest-factoryboy
 iniconfig==1.1.1
@@ -187,9 +185,7 @@ tomli==2.0.1
     #   black
     #   pytest
 typing-extensions==4.2.0
-    # via
-    #   black
-    #   pytest-factoryboy
+    # via pytest-factoryboy
 vine==5.0.0
     # via
     #   amqp
@@ -201,5 +197,3 @@ wand==0.6.7
     # via django-filingcabinet
 wcwidth==0.2.5
     # via prompt-toolkit
-zipp==3.8.0
-    # via importlib-resources
