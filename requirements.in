@@ -1,5 +1,5 @@
 celery
-Django>=3.2,<3.3
+Django~=3.2
 django_celery_beat
 django-configurations
 django-filingcabinet
