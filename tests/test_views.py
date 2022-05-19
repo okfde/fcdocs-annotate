@@ -62,9 +62,9 @@ def test_annotate_view_post(get_documents, get_features, formset_data, client):
 
     data = formset_data(formdata=[(f1.id, d1.id, True), (f2.id, d1.id, False)])
     response = client.post("/annotate/", data, follow=True)
-    assert response.context_data.get("object") == d2
+    assert response.context_data.get("object") in [d1, d2, d3]
     for entry in response.context_data.get("feature_form_set").initial:
-        assert entry.get("document") == d2.id
+        assert entry.get("document") in [d1.id, d2.id, d3.id]
         assert entry.get("feature") in [f1.id, f2.id]
 
     data = formset_data(formdata=[(f1.id, d2.id, False), (f2.id, d2.id, True)])
@@ -106,6 +106,6 @@ def test_annotate_view_clear_session_after_feature_added(
     get_features(1)
 
     response = client.get("/annotate/")
-    assert response.context_data.get("object") == documents[0]
+    assert response.context_data.get("object") in documents
     formset = response.context_data.get("feature_form_set")
     assert len(formset.initial) == 1
