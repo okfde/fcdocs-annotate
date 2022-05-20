@@ -8,6 +8,10 @@ from .models import Feature, FeatureAnnotationDraft
 Document = get_document_model()
 
 
+class SkipDocumentForm(forms.Form):
+    document = forms.CharField(widget=forms.HiddenInput())
+
+
 class FeatureAnnotationDraftForm(forms.ModelForm):
     document = forms.ModelChoiceField(
         queryset=Document.objects.all(), widget=forms.HiddenInput()
@@ -21,9 +25,9 @@ class FeatureAnnotationDraftForm(forms.ModelForm):
         fields = ["value", "document", "feature"]
 
     def get_label(self):
-        if self.initial.get("feature"):
+        feature_id = self.initial.get("feature")
+        if feature_id:
             try:
-                feature_id = self.initial.get("feature")
                 return Feature.objects.get(id=feature_id).question
             except Feature.DoesNotExist:
                 return ""

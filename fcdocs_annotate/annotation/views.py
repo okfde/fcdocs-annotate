@@ -6,7 +6,7 @@ from django.views.generic import DetailView, TemplateView
 from filingcabinet import get_document_model
 from filingcabinet.views import get_document_viewer_context, get_viewer_preferences
 
-from .forms import feature_annotation_draft_formset
+from .forms import SkipDocumentForm, feature_annotation_draft_formset
 from .models import Feature
 
 Document = get_document_model()
@@ -29,7 +29,10 @@ class AnnotateDocumentView(DetailView):
         return self.get_queryset()
 
     def get_queryset(self):
-        return Feature.objects.documents_for_annotation(self.request.session)
+        skipped_documents = self.request.session.get("skipped_documents", [])
+        return Feature.objects.documents_for_annotation(self.request.session).exclude(
+            id__in=skipped_documents
+        )
 
     def get_object(self, queryset=None):
         return self.documents.order_by("?").first()
@@ -56,21 +59,34 @@ class AnnotateDocumentView(DetailView):
                 {
                     "feature_form_set": feature_annotation_draft_formset(
                         initial=self.get_initial_data()
-                    )
+                    ),
+                    "skipform": SkipDocumentForm(
+                        initial={"document": str(self.object.id)}
+                    ),
                 }
             )
         return ctx
 
     def post(self, request, *args, **kwargs):
-        form_set = feature_annotation_draft_formset(request.POST)
+        if "skip" in request.POST:
+            skipform = SkipDocumentForm(request.POST)
+            if skipform.is_valid():
+                document = skipform.cleaned_data.get("document")
+                skipped_documents = request.session.get("skipped_documents", [])
+                skipped_documents.append(int(document))
+                request.session["skipped_documents"] = skipped_documents
+        else:
+            form_set = feature_annotation_draft_formset(request.POST)
 
-        if form_set.is_valid():
-            if not self.request.session.session_key:
-                self.request.session.create()
-            session = Session.objects.get(session_key=self.request.session.session_key)
-            for form in form_set:
-                if form.is_valid():
-                    annotation = form.save(commit=False)
-                    annotation.session = session
-                    annotation.save()
+            if form_set.is_valid():
+                if not self.request.session.session_key:
+                    self.request.session.create()
+                session = Session.objects.get(
+                    session_key=self.request.session.session_key
+                )
+                for form in form_set:
+                    if form.is_valid():
+                        annotation = form.save(commit=False)
+                        annotation.session = session
+                        annotation.save()
         return HttpResponseRedirect(self.request.path_info)

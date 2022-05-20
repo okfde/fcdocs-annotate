@@ -29,7 +29,16 @@
                     {% include "filingcabinet/_document_viewer.html" with object=object %}
                 </div>
                 <div class="col">
-                    <form method="POST" class="sticky-top">
+                    <form method="POST" class="my-3">
+                        {% csrf_token %}
+                        {{ skipform }}
+                        <div class="row">
+                            <div class="col text-end">
+                                <button type="submit" name="skip" class="btn btn-block btn-outline-primary">Skip &#62; &#62;</button>
+                            </div>
+                        </div>
+                    </form>
+                    <form method="POST" class="sticky-top border p-3">
                         {% csrf_token %}
                         {{ feature_form_set.management_form }}
                         {% for form in feature_form_set %}
