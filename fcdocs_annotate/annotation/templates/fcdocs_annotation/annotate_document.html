@@ -29,23 +29,25 @@
                     {% include "filingcabinet/_document_viewer.html" with object=object %}
                 </div>
                 <div class="col">
-                    <form method="POST" class="my-3">
-                        {% csrf_token %}
-                        {{ skipform }}
-                        <div class="row">
-                            <div class="col text-end">
-                                <button type="submit" name="skip" class="btn btn-block btn-outline-primary">Skip &#62; &#62;</button>
+                    <div class="sticky-top">
+                        <form method="POST" >
+                            {% csrf_token %}
+                            {{ skipform }}
+                            <div class="row">
+                                <div class="col text-end">
+                                    <button type="submit" name="skip" class="btn btn-block btn-outline-primary">Skip &#62; &#62;</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
-                    <form method="POST" class="sticky-top border p-3">
-                        {% csrf_token %}
-                        {{ feature_form_set.management_form }}
-                        {% for form in feature_form_set %}
-                            {{ form }}
-                        {% endfor %}
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                        </form>
+                        <form method="POST" class="my-3 border p-3">
+                            {% csrf_token %}
+                            {{ feature_form_set.management_form }}
+                            {% for form in feature_form_set %}
+                                {{ form }}
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
