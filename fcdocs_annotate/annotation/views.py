@@ -1,4 +1,7 @@
+import random
+
 from django.contrib.sessions.models import Session
+from django.db.models import Max
 from django.http import HttpResponseRedirect
 from django.utils.functional import cached_property
 from django.views.generic import DetailView, TemplateView
@@ -35,7 +38,15 @@ class AnnotateDocumentView(DetailView):
         )
 
     def get_object(self, queryset=None):
-        return self.documents.first()
+        document_count = self.documents.count()
+        if document_count > 1000:
+            max_id = self.documents.aggregate(max_id=Max("id"))["max_id"]
+            random_ids = random.sample(range(1, max_id), 100)
+            document = self.documents.filter(id__in=random_ids).first()
+            if document:
+                return document
+            return self.documents.first()
+        return self.documents.order_by("?").first()
 
     def get_initial_data(self):
         initial = []
