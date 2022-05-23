@@ -41,14 +41,14 @@ class AnnotationDocumentsManager(AbstractAnnotationManager):
     def final_documents(self):
         from .feature import Feature
 
-        feature_count = Feature.objects.all().count()
+        feature_count = Feature.objects.annotation_needed().count()
         documents = self.documents_with_annotation_count()
         return documents.filter(final_count__gte=feature_count)
 
     def unfinished_documents(self):
         from .feature import Feature
 
-        feature_count = Feature.objects.all().count()
+        feature_count = Feature.objects.annotation_needed().count()
         documents = self.documents_with_annotation_count()
         return documents.exclude(final_count__gte=feature_count)
 
