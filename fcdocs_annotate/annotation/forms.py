@@ -34,12 +34,14 @@ class FeatureAnnotationDraftForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        options = ((True, "Ja"), (False, "Nein"))
-        self.fields["value"] = forms.ChoiceField(
-            choices=options,
-            widget=forms.RadioSelect(attrs={"class": "list-unstyled"}),
-            label=self.get_label(),
-        )
+        self.fields["value"] = forms.BooleanField(label=self.get_label())
+        self.fields["value"].required = False
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value")
+        if value == "":
+            return False
+        return value
 
 
 feature_annotation_draft_formset = formset_factory(FeatureAnnotationDraftForm, extra=0)
