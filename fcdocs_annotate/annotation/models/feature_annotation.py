@@ -33,7 +33,12 @@ class AnnotationDocumentsManager(AbstractAnnotationManager):
         return Document.objects.exclude(id__in=document_ids)
 
     def documents_with_annotation_count(self):
-        subquery = self._get_subquery({"type": TYPE_MANUAL})
+        from .feature import Feature
+
+        feature_ids = Feature.objects.annotation_needed().values_list("id", flat=True)
+        subquery = self._get_subquery(
+            {"type": TYPE_MANUAL, "feature_id__in": feature_ids}
+        )
         return self.documents_with_annotations().annotate(
             final_count=Coalesce(subquery, 0)
         )

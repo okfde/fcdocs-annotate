@@ -64,6 +64,91 @@ def test_documents_manager_users_documents(
 
 
 @pytest.mark.django_db
+def test_annotations_final_annotations(
+    get_documents, feature_factory, feature_annotation_factory
+):
+    documents = get_documents(5)
+
+    assert Document.objects.all().count() == 5
+
+    f1 = feature_factory(documents_needed=1)
+    f2 = feature_factory(documents_needed=1)
+    f3 = feature_factory(documents_needed=10)
+    f4 = feature_factory(documents_needed=10)
+
+    assert Feature.objects.annotation_needed().count() == 4
+
+    feature_annotation_factory(document=documents[0], feature=f1, value=True)
+    feature_annotation_factory(document=documents[0], feature=f2, value=True)
+
+    assert Feature.objects.annotation_needed().count() == 2
+    assert FeatureAnnotation.objects.final_documents().count() == 0
+
+    feature_annotation_factory(document=documents[0], feature=f3, value=True)
+    feature_annotation_factory(document=documents[0], feature=f4, value=True)
+
+    assert Feature.objects.annotation_needed().count() == 2
+    assert FeatureAnnotation.objects.final_documents().count() == 1
+
+    f3.documents_needed = 1
+    f3.save()
+
+    assert Feature.objects.annotation_needed().count() == 1
+    assert FeatureAnnotation.objects.final_documents().count() == 1
+
+
+@pytest.mark.django_db
+def test_annotations_draft_not_done_by_user(
+    get_documents,
+    feature_factory,
+    feature_annotation_factory,
+    feature_annotation_draft_factory,
+):
+    documents = get_documents(5)
+
+    assert Document.objects.all().count() == 5
+
+    f1 = feature_factory(documents_needed=1)
+    f2 = feature_factory(documents_needed=1)
+    f3 = feature_factory(documents_needed=10)
+    f4 = feature_factory(documents_needed=10)
+
+    feature_annotation_factory(document=documents[0], feature=f1, value=True)
+    feature_annotation_factory(document=documents[0], feature=f2, value=True)
+
+    assert Feature.objects.annotation_needed().count() == 2
+
+    session1 = "abc"
+    session2 = "def"
+
+    feature_annotation_draft_factory(
+        document=documents[0], feature=f3, session=session1, value=True
+    )
+    feature_annotation_draft_factory(
+        document=documents[0], feature=f4, session=session1, value=True
+    )
+
+    assert (
+        FeatureAnnotationDraft.objects.documents_not_done_by_user(session2).count() == 1
+    )
+
+    feature_annotation_draft_factory(
+        document=documents[0], feature=f1, session=session2, value=True
+    )
+    feature_annotation_draft_factory(
+        document=documents[0], feature=f2, session=session2, value=True
+    )
+
+    assert (
+        FeatureAnnotationDraft.objects.documents_not_done_by_user(session2).count() == 1
+    )
+    assert (
+        Feature.objects.unfinished_documents_for_user(session2).first() == documents[0]
+    )
+    assert Feature.objects.unfinished_documents_for_user(session2).count() == 1
+
+
+@pytest.mark.django_db
 def test_documents_manager_unfinished_documents(
     get_features, get_documents, feature_annotation_factory
 ):

@@ -27,8 +27,13 @@ class AnnotationDraftDocumentsManager(AbstractAnnotationManager):
         return Document.objects.exclude(id__in=document_ids)
 
     def documents_with_user_count(self, session):
+        from .feature import Feature
+
+        feature_ids = Feature.objects.annotation_needed().values_list("id", flat=True)
         session = self._get_session_key(session)
-        subquery = self._get_subquery({"session": session})
+        subquery = self._get_subquery(
+            {"session": session, "feature_id__in": feature_ids}
+        )
         return self.documents_with_annotation_drafts().annotate(
             user_count=Coalesce(subquery, 0)
         )
