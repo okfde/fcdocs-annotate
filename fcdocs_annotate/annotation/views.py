@@ -91,7 +91,6 @@ class AnnotateDocumentView(DetailView):
                 request.session["skipped_documents"] = skipped_documents
         else:
             form_set = feature_annotation_draft_formset(request.POST)
-
             if form_set.is_valid():
                 if not self.request.session.session_key:
                     self.request.session.create()
