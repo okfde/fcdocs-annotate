@@ -6,6 +6,9 @@ from django.http import HttpResponseRedirect
 from django.utils.functional import cached_property
 from django.views.generic import DetailView, TemplateView
 
+from fcdocs_annotate.annotation.models.feature_annotation_draft import (
+    FeatureAnnotationDraft,
+)
 from filingcabinet import get_document_model
 from filingcabinet.views import get_document_viewer_context, get_viewer_preferences
 
@@ -99,5 +102,8 @@ class AnnotateDocumentView(DetailView):
                     if form.is_valid():
                         annotation = form.save(commit=False)
                         annotation.session = session
-                        annotation.save()
+                        try:
+                            annotation.save()
+                        except FeatureAnnotationDraft.IntegrityError:
+                            pass
         return HttpResponseRedirect(self.request.path_info)
