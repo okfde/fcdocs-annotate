@@ -23,6 +23,8 @@ Final annotations that can be queried via the API and can be further used.
 
 ## Installation
 
+1. Make sure system dependencies are installed. They are defined in [django-filingcabinet's `default.nix`](https://github.com/okfde/django-filingcabinet/blob/master/default.nix).
+
 1.  Clone the Git repository and change into the newly created project directory:
 
         git clone git@github.com:okfde/fcdocs-annotate.git
