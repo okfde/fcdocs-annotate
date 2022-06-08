@@ -1,14 +1,12 @@
 import random
 
 from django.contrib.sessions.models import Session
+from django.db import IntegrityError
 from django.db.models import Max
 from django.http import HttpResponseRedirect
 from django.utils.functional import cached_property
 from django.views.generic import DetailView, TemplateView
 
-from fcdocs_annotate.annotation.models.feature_annotation_draft import (
-    FeatureAnnotationDraft,
-)
 from filingcabinet import get_document_model
 from filingcabinet.views import get_document_viewer_context, get_viewer_preferences
 
@@ -54,8 +52,9 @@ class AnnotateDocumentView(DetailView):
     def get_initial_data(self):
         initial = []
         features = Feature.objects.annotation_needed()
+        document = self.object
         for feature in features:
-            if feature.needs_annotation(self.request.session, self.object):
+            if feature.needs_annotation(self.request.session, document):
                 initial.append({"document": self.object.id, "feature": feature.id})
         return initial
 
@@ -103,6 +102,6 @@ class AnnotateDocumentView(DetailView):
                         annotation.session = session
                         try:
                             annotation.save()
-                        except FeatureAnnotationDraft.IntegrityError:
+                        except IntegrityError:
                             pass
         return HttpResponseRedirect(self.request.path_info)
