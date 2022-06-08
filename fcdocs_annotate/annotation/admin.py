@@ -19,6 +19,7 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
         "value",
         "feature",
     )
+    raw_id_fields = ("document",)
     ordering = ("-document",)
 
     def get_document_title(self, obj):
@@ -37,6 +38,7 @@ class FeatureAnnotationDraftAdmin(admin.ModelAdmin):
         "value",
         "feature",
     )
+    raw_id_fields = ("document",)
 
     actions = ["make_finalized"]
 
