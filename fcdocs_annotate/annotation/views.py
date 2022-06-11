@@ -34,8 +34,8 @@ class AnnotateDocumentView(DetailView):
 
     def get_queryset(self):
         skipped_documents = self.request.session.get("skipped_documents", [])
-        return Feature.objects.documents_for_annotation(self.request.session).exclude(
-            id__in=skipped_documents
+        return Feature.objects.documents_for_annotation(
+            self.request.session, skipped=skipped_documents
         )
 
     def get_object(self, queryset=None):

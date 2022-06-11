@@ -109,3 +109,39 @@ def test_annotate_view_clear_session_after_feature_added(
     assert response.context_data.get("object") in documents
     formset = response.context_data.get("feature_form_set")
     assert len(formset.initial) == 1
+
+
+@pytest.mark.django_db
+def test_skipped(
+    client, get_documents, feature_factory, feature_annotation_draft_factory
+):
+
+    documents = get_documents(5)
+    feature = feature_factory()
+
+    session_1 = "abc"
+
+    feature_annotation_draft_factory(
+        document=documents[0], feature=feature, session=session_1
+    )
+    feature_annotation_draft_factory(
+        document=documents[1], feature=feature, session=session_1
+    )
+
+    response = client.get("/annotate/")
+    assert response.context_data.get("object") in [documents[0], documents[1]]
+    formset = response.context_data.get("feature_form_set")
+    assert len(formset.initial) == 1
+
+    session = client.session
+    session["skipped_documents"] = [documents[0].id, documents[1].id]
+    session.save()
+
+    response = client.get("/annotate/")
+    assert response.context_data.get("object") in [
+        documents[2],
+        documents[3],
+        documents[4],
+    ]
+    formset = response.context_data.get("feature_form_set")
+    assert len(formset.initial) == 1

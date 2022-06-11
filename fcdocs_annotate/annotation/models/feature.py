@@ -56,16 +56,21 @@ class FeatureManager(models.Manager):
         )
         return not_done_by_user.exclude(id__in=finished_ids)
 
-    def documents_for_annotation(self, session):
+    def documents_for_annotation(self, session, skipped=None):
+        skipped = [] if not skipped else skipped
         if self.annotation_needed():
-            documents = self.unfinished_documents_for_user(session)
+            documents = self.unfinished_documents_for_user(session).exclude(
+                id__in=skipped
+            )
             if not documents:
                 user_documents = FeatureAnnotationDraft.objects.users_documents(session)
                 annotated_documents_ids = (
                     FeatureAnnotation.objects.documents_with_annotations_ids()
                 )
                 user_documents_ids = user_documents.values_list("id", flat=True)
-                document_ids = list(annotated_documents_ids) + list(user_documents_ids)
+                document_ids = (
+                    list(annotated_documents_ids) + list(user_documents_ids) + skipped
+                )
                 return Document.objects.filter(public=True).exclude(id__in=document_ids)
             return documents
         return Document.objects.none()
