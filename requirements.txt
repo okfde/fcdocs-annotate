@@ -18,8 +18,7 @@ celery==5.2.3
     # via
     #   -r requirements.in
     #   django-celery-beat
-cffi==1.15.0
-    # via webp
+    #   django-filingcabinet
 click==8.1.1
     # via
     #   celery
@@ -34,7 +33,7 @@ click-repl==0.2.0
     # via celery
 dj-database-url==0.5.0
     # via -r requirements.in
-django==3.2.13
+django==3.2.14
     # via
     #   -r requirements.in
     #   django-celery-beat
@@ -67,18 +66,18 @@ djangorestframework==3.13.1
     # via
     #   -r requirements.in
     #   django-filingcabinet
+feedgen==0.9.0
+    # via django-filingcabinet
 future==0.18.2
     # via django-json-widget
-importlib-resources==5.6.0
-    # via jsonschema
 jsonschema==4.4.0
     # via django-filingcabinet
 kombu==5.2.4
     # via celery
 lxml==4.8.0
-    # via pikepdf
-numpy==1.22.3
-    # via webp
+    # via
+    #   feedgen
+    #   pikepdf
 packaging==21.3
     # via pikepdf
 pikepdf==5.1.1
@@ -88,11 +87,8 @@ pillow==9.0.1
     #   django-filingcabinet
     #   pikepdf
     #   reportlab
-    #   webp
 prompt-toolkit==3.0.28
     # via click-repl
-pycparser==2.21
-    # via cffi
 pyparsing==3.0.7
     # via packaging
 pypdf2==1.26.0
@@ -102,7 +98,9 @@ pyrsistent==0.18.1
 python-crontab==2.6.0
     # via django-celery-beat
 python-dateutil==2.8.2
-    # via python-crontab
+    # via
+    #   feedgen
+    #   python-crontab
 python-dotenv==0.20.0
     # via -r requirements.in
 pytz==2021.3
@@ -128,10 +126,6 @@ wand==0.6.7
     # via django-filingcabinet
 wcwidth==0.2.5
     # via prompt-toolkit
-webp==0.1.4
-    # via django-filingcabinet
-zipp==3.7.0
-    # via importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
