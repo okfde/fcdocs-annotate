@@ -45,6 +45,7 @@ Final annotations that can be queried via the API and can be further used.
 1.  Install all dependencies.
 
         pip install -r requirements.txt
+        python -m spacy download de_core_news_sm
 
 1.  Build frontend
 
@@ -64,3 +65,4 @@ Final annotations that can be queried via the API and can be further used.
         ./manage.py runserver
 
 1.  Open your browser and browse to localhost:8000
+
