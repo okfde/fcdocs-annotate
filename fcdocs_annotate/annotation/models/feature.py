@@ -81,6 +81,7 @@ class Feature(models.Model):
     question = models.CharField(max_length=500)
     description = models.TextField(blank=True)
     documents_needed = models.PositiveIntegerField(default=10)
+    model_path = models.CharField(max_length=500, blank=True)
 
     objects = FeatureManager()
 
