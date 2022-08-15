@@ -1,9 +1,13 @@
 from django.db import models
 from django.db.models import Count, Exists, F, Max, OuterRef, Q
 
+import pandas as pd
+from fcdocs.extras.datasets.document_dataset import DocumentDataSet
+from fcdocs.pipelines.text_model.model_dataset import ModelDataSet
 from filingcabinet import get_document_model
+from kedro.io import Version
 
-from .feature_annotation import TYPE_MANUAL, FeatureAnnotation
+from .feature_annotation import TYPE_AUTOMATED, TYPE_MANUAL, FeatureAnnotation
 from .feature_annotation_draft import FeatureAnnotationDraft
 
 Document = get_document_model()
@@ -116,3 +120,17 @@ class Feature(models.Model):
         return (
             not document_has_final_annotation and not document_has_annotation_from_user
         )
+
+    def predict(self):
+        documents = Document.objects.all()
+        for doc in documents:
+            document = DocumentDataSet(doc.pdf_file.path).load()
+            version = Version(None, None)
+            model = ModelDataSet(self.model_path, version).load()
+            prediction = model.predict(pd.DataFrame([document]))[0]
+            FeatureAnnotation.objects.create(
+                document=doc,
+                feature=self,
+                type=TYPE_AUTOMATED,
+                value=True if prediction else False,
+            )
