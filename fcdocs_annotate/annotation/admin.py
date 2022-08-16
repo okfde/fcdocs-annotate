@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.contrib.admin import helpers
 from django.contrib.admin.sites import AlreadyRegistered
+from django.shortcuts import render
 
 from filingcabinet.admin import (
     DocumentBaseAdmin,
@@ -9,6 +11,7 @@ from filingcabinet.admin import (
 )
 from filingcabinet.models import Document, DocumentPortal, Page, PageAnnotation
 
+from .forms import PredictFeatureForm
 from .models import TYPE_MANUAL, Feature, FeatureAnnotation, FeatureAnnotationDraft
 
 
@@ -63,9 +66,44 @@ class FeatureAdmin(admin.ModelAdmin):
     get_document_count.short_description = "Number of documents with that feature"
 
 
+class ProxyDocument(Document):
+    class Meta:
+        proxy = True
+        verbose_name = "Document with Prediction"
+        verbose_name_plural = "Documents with Predictions"
+
+
+class PredictFeatureAdmin(admin.ModelAdmin):
+    model = ProxyDocument
+    actions = ["predict_feature"]
+
+    def predict_feature(self, request, queryset):
+        if request.POST.get("post"):
+            feature_id = request.POST.get("feature")
+            feature = Feature.objects.get(id=feature_id)
+            documents_list = [
+                int(doc) for doc in request.POST.getlist("_selected_action")
+            ]
+            documents = Document.objects.filter(id__in=documents_list)
+            feature.predict(documents)
+        form = PredictFeatureForm()
+        return render(
+            request,
+            "admin/predict_feature.html",
+            context={
+                "documents": queryset,
+                "form": form,
+                "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+            },
+        )
+
+    predict_feature.short_description = "Predict feature"
+
+
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureAnnotationDraft, FeatureAnnotationDraftAdmin)
 admin.site.register(FeatureAnnotation, FeatureAnnotationAdmin)
+admin.site.register(ProxyDocument, PredictFeatureAdmin)
 
 try:
     admin.site.register(Page, PageAdmin)

@@ -44,4 +44,8 @@ class FeatureAnnotationDraftForm(forms.ModelForm):
         return value
 
 
+class PredictFeatureForm(forms.Form):
+    feature = forms.ModelChoiceField(queryset=Feature.objects.exclude(model_path=""))
+
+
 feature_annotation_draft_formset = formset_factory(FeatureAnnotationDraftForm, extra=0)

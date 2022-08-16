@@ -121,8 +121,7 @@ class Feature(models.Model):
             not document_has_final_annotation and not document_has_annotation_from_user
         )
 
-    def predict(self):
-        documents = Document.objects.all()
+    def predict(self, documents):
         for doc in documents:
             document = DocumentDataSet(doc.pdf_file.path).load()
             version = Version(None, None)
