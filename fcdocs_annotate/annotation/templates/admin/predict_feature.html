@@ -1,6 +1,7 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
+<h2>Predict Feature for {{ documents.count }} Documents:</h2>
 <form action="" method="post">
     {% csrf_token %}
     {{ form }}
