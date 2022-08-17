@@ -127,7 +127,7 @@ class Feature(models.Model):
             version = Version(None, None)
             model = ModelDataSet(self.model_path, version).load()
             prediction = model.predict(pd.DataFrame([document]))[0]
-            FeatureAnnotation.objects.create(
+            FeatureAnnotation.objects.get_or_create(
                 document=doc,
                 feature=self,
                 type=TYPE_AUTOMATED,
