@@ -1,18 +1,24 @@
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.sites import AlreadyRegistered
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 
+from filingcabinet import get_document_model
 from filingcabinet.admin import (
     DocumentBaseAdmin,
     DocumentPortalAdmin,
     PageAdmin,
     PageAnnotationAdmin,
 )
-from filingcabinet.models import Document, DocumentPortal, Page, PageAnnotation
+from filingcabinet.models import DocumentPortal, Page, PageAnnotation
 
 from .forms import PredictFeatureForm
 from .models import TYPE_MANUAL, Feature, FeatureAnnotation, FeatureAnnotationDraft
+from .tasks import predict_feature_for_documents
+
+Document = get_document_model()
 
 
 class FeatureAnnotationAdmin(admin.ModelAdmin):
@@ -22,6 +28,7 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
         "value",
         "feature",
     )
+    list_filter = ("feature", "type")
     raw_id_fields = ("document",)
     ordering = ("-document",)
 
@@ -80,12 +87,18 @@ class PredictFeatureAdmin(admin.ModelAdmin):
     def predict_feature(self, request, queryset):
         if request.POST.get("post"):
             feature_id = request.POST.get("feature")
-            feature = Feature.objects.get(id=feature_id)
             documents_list = [
                 int(doc) for doc in request.POST.getlist("_selected_action")
             ]
-            documents = Document.objects.filter(id__in=documents_list)
-            feature.predict(documents)
+            predict_feature_for_documents.delay(feature_id, documents_list)
+            self.message_user(
+                request,
+                "Started annotating documents. This might take while. Check this page again later.",
+            )
+            return HttpResponseRedirect(
+                reverse("admin:fcdocs_annotation_featureannotation_changelist")
+            )
+
         form = PredictFeatureForm()
         return render(
             request,

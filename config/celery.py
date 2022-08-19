@@ -1,6 +1,10 @@
 import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fcdocs_annotate.settings")
+from dotenv import load_dotenv
+
+load_dotenv()
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 os.environ.setdefault("DJANGO_CONFIGURATION", "Dev")
 
 from configurations import importer  # noqa
@@ -15,3 +19,8 @@ app = Celery("fcdocs_annotate")
 app.config_from_object("django.conf:settings", namespace="CELERY", force=True)
 
 app.autodiscover_tasks()
+
+
+@app.task(bind=True)
+def debug_task(self):
+    print(f"Request: {self.request!r}")
