@@ -3,7 +3,7 @@ from django.db.models import Count, Exists, F, Max, OuterRef, Q
 
 import pandas as pd
 from fcdocs.extras.datasets.document_dataset import DocumentDataSet
-from fcdocs.pipelines.text_model.model_dataset import ModelDataSet
+from fcdocs.pipelines.classifier.model_dataset import ModelDataSet
 from filingcabinet import get_document_model
 from kedro.io import Version
 
