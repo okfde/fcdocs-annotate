@@ -1,6 +1,8 @@
 from celery import shared_task
 from fcdocs_annotate.annotation.models import Feature
-from filingcabinet.models import Document
+from filingcabinet import get_document_model
+
+Document = get_document_model()
 
 
 @shared_task
