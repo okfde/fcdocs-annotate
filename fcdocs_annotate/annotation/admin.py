@@ -70,53 +70,40 @@ class FeatureAdmin(admin.ModelAdmin):
     def get_document_count(self, obj):
         return obj.final_annotation_count()
 
-    get_document_count.short_description = "Number of documents with that feature"
 
-
-class ProxyDocument(Document):
-    class Meta:
-        proxy = True
-        verbose_name = "Document with Prediction"
-        verbose_name_plural = "Documents with Predictions"
-
-
-class PredictFeatureAdmin(admin.ModelAdmin):
-    model = ProxyDocument
-    actions = ["predict_feature"]
-
-    def predict_feature(self, request, queryset):
-        if request.POST.get("post"):
-            feature_id = request.POST.get("feature")
-            documents_list = [
-                int(doc) for doc in request.POST.getlist("_selected_action")
-            ]
-            predict_feature_for_documents.delay(feature_id, documents_list)
-            self.message_user(
-                request,
-                "Started annotating documents. This might take while. Check this page again later.",
-            )
-            return HttpResponseRedirect(
-                reverse("admin:fcdocs_annotation_featureannotation_changelist")
-            )
-
-        form = PredictFeatureForm()
-        return render(
+def predict_feature(self, request, queryset):
+    if request.POST.get("post"):
+        feature_id = request.POST.get("feature")
+        documents_list = [int(doc) for doc in request.POST.getlist("_selected_action")]
+        predict_feature_for_documents.delay(feature_id, documents_list)
+        self.message_user(
             request,
-            "admin/predict_feature.html",
-            context={
-                "documents": queryset,
-                "form": form,
-                "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
-            },
+            "Started annotating documents. This might take while. Check this page again later.",
+        )
+        return HttpResponseRedirect(
+            reverse("admin:fcdocs_annotation_featureannotation_changelist")
         )
 
-    predict_feature.short_description = "Predict feature"
+    form = PredictFeatureForm()
+    return render(
+        request,
+        "admin/predict_feature.html",
+        context={
+            "documents": queryset,
+            "form": form,
+            "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+        },
+    )
 
+
+predict_feature.short_description = "Predict feature"
+
+DocumentBaseAdmin.predict_feature = predict_feature
+DocumentBaseAdmin.actions += ["predict_feature"]
 
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureAnnotationDraft, FeatureAnnotationDraftAdmin)
 admin.site.register(FeatureAnnotation, FeatureAnnotationAdmin)
-admin.site.register(ProxyDocument, PredictFeatureAdmin)
 
 try:
     admin.site.register(Page, PageAdmin)
@@ -124,4 +111,6 @@ try:
     admin.site.register(Document, DocumentBaseAdmin)
     admin.site.register(DocumentPortal, DocumentPortalAdmin)
 except AlreadyRegistered:
+    admin.site._registry[Document].predict_feature = predict_feature
+    admin.site._registry[Document].actions += ["predict_feature"]
     pass
