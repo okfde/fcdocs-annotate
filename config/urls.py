@@ -5,10 +5,6 @@ from django.contrib import admin
 from django.urls import path
 
 from fcdocs_annotate.annotation.api import FeatureViewSet
-from fcdocs_annotate.annotation.views import (
-    AnnotateDocumentView,
-    AnnotationsOverviewView,
-)
 from filingcabinet.api_views import (
     DocumentCollectionViewSet,
     DocumentViewSet,
@@ -28,11 +24,10 @@ api_router.register(r"feature", FeatureViewSet, basename="feature")
 
 
 urlpatterns = [
-    path("", AnnotationsOverviewView.as_view()),
+    path("", include("fcdocs_annotate.annotation.urls")),
     path("admin/", admin.site.urls),
     path("api/", include((api_router.urls, "api"))),
     path("document", include("filingcabinet.urls")),
-    path("annotate/", AnnotateDocumentView.as_view(), name="annotate-document"),
 ]
 
 if settings.DEBUG:
