@@ -1,15 +1,15 @@
+import logging
+
 from django.db import models
 from django.db.models import Count, Exists, F, Max, OuterRef, Q
+from django.utils.text import slugify
 
-import pandas as pd
-from fcdocs.extras.datasets.document_dataset import DocumentDataSet
-from fcdocs.pipelines.classifier.model_dataset import ModelDataSet
 from filingcabinet import get_document_model
-from kedro.io import Version
 
-from .feature_annotation import TYPE_AUTOMATED, TYPE_MANUAL, FeatureAnnotation
+from .feature_annotation import TYPE_MANUAL, FeatureAnnotation
 from .feature_annotation_draft import FeatureAnnotationDraft
 
+logger = logging.getLogger(__file__)
 Document = get_document_model()
 
 
@@ -80,12 +80,18 @@ class FeatureManager(models.Manager):
         return Document.objects.none()
 
 
+def get_upload_modelfile_path(instance, filename):
+    return "fcdocs-models/%s/%s" % (slugify(instance.name), filename)
+
+
 class Feature(models.Model):
     name = models.CharField(max_length=500)
     question = models.CharField(max_length=500)
     description = models.TextField(blank=True)
     documents_needed = models.PositiveIntegerField(default=10)
-    model_path = models.CharField(max_length=500, blank=True)
+    model_path = models.FileField(
+        upload_to=get_upload_modelfile_path, max_length=500, blank=True
+    )
 
     objects = FeatureManager()
 
@@ -120,16 +126,3 @@ class Feature(models.Model):
         return (
             not document_has_final_annotation and not document_has_annotation_from_user
         )
-
-    def predict(self, documents):
-        for doc in documents:
-            document = DocumentDataSet(doc.pdf_file.path).load()
-            version = Version(None, None)
-            model = ModelDataSet(self.model_path, version).load()
-            prediction = model.predict(pd.DataFrame([document]))[0]
-            FeatureAnnotation.objects.get_or_create(
-                document=doc,
-                feature=self,
-                type=TYPE_AUTOMATED,
-                value=True if prediction else False,
-            )
