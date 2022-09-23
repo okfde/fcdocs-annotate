@@ -8,3 +8,4 @@ package-lock.json
 static
 venv
 .env
+*.egg-info
