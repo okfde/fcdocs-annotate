@@ -1,24 +1,12 @@
 from django.contrib import admin
 from django.contrib.admin import helpers
-from django.contrib.admin.sites import AlreadyRegistered
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from filingcabinet import get_document_model
-from filingcabinet.admin import (
-    DocumentBaseAdmin,
-    DocumentPortalAdmin,
-    PageAdmin,
-    PageAnnotationAdmin,
-)
-from filingcabinet.models import DocumentPortal, Page, PageAnnotation
-
 from .forms import PredictFeatureForm
 from .models import TYPE_MANUAL, Feature, FeatureAnnotation, FeatureAnnotationDraft
 from .tasks import predict_feature_for_documents
-
-Document = get_document_model()
 
 
 class FeatureAnnotationAdmin(admin.ModelAdmin):
@@ -98,19 +86,6 @@ def predict_feature(self, request, queryset):
 
 predict_feature.short_description = "Predict feature"
 
-DocumentBaseAdmin.predict_feature = predict_feature
-DocumentBaseAdmin.actions += ["predict_feature"]
-
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureAnnotationDraft, FeatureAnnotationDraftAdmin)
 admin.site.register(FeatureAnnotation, FeatureAnnotationAdmin)
-
-try:
-    admin.site.register(Page, PageAdmin)
-    admin.site.register(PageAnnotation, PageAnnotationAdmin)
-    admin.site.register(Document, DocumentBaseAdmin)
-    admin.site.register(DocumentPortal, DocumentPortalAdmin)
-except AlreadyRegistered:
-    admin.site._registry[Document].predict_feature = predict_feature
-    admin.site._registry[Document].actions += ["predict_feature"]
-    pass
