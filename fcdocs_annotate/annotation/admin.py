@@ -1,15 +1,12 @@
 from django.contrib import admin
-from django.contrib.admin.sites import AlreadyRegistered
+from django.contrib.admin import helpers
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse
 
-from filingcabinet.admin import (
-    DocumentBaseAdmin,
-    DocumentPortalAdmin,
-    PageAdmin,
-    PageAnnotationAdmin,
-)
-from filingcabinet.models import Document, DocumentPortal, Page, PageAnnotation
-
+from .forms import PredictFeatureForm
 from .models import TYPE_MANUAL, Feature, FeatureAnnotation, FeatureAnnotationDraft
+from .tasks import predict_feature_for_documents
 
 
 class FeatureAnnotationAdmin(admin.ModelAdmin):
@@ -19,6 +16,7 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
         "value",
         "feature",
     )
+    list_filter = ("feature", "type")
     raw_id_fields = ("document",)
     ordering = ("-document",)
 
@@ -60,17 +58,34 @@ class FeatureAdmin(admin.ModelAdmin):
     def get_document_count(self, obj):
         return obj.final_annotation_count()
 
-    get_document_count.short_description = "Number of documents with that feature"
 
+def predict_feature(self, request, queryset):
+    if request.POST.get("post"):
+        feature_id = request.POST.get("feature")
+        documents_list = [int(doc) for doc in request.POST.getlist("_selected_action")]
+        predict_feature_for_documents.delay(feature_id, documents_list)
+        self.message_user(
+            request,
+            "Started annotating documents. This might take while. Check this page again later.",
+        )
+        return HttpResponseRedirect(
+            reverse("admin:fcdocs_annotation_featureannotation_changelist")
+        )
+
+    form = PredictFeatureForm()
+    return render(
+        request,
+        "admin/predict_feature.html",
+        context={
+            "documents": queryset,
+            "form": form,
+            "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+        },
+    )
+
+
+predict_feature.short_description = "Predict feature"
 
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureAnnotationDraft, FeatureAnnotationDraftAdmin)
 admin.site.register(FeatureAnnotation, FeatureAnnotationAdmin)
-
-try:
-    admin.site.register(Page, PageAdmin)
-    admin.site.register(PageAnnotation, PageAnnotationAdmin)
-    admin.site.register(Document, DocumentBaseAdmin)
-    admin.site.register(DocumentPortal, DocumentPortalAdmin)
-except AlreadyRegistered:
-    pass

@@ -1,11 +1,15 @@
+import logging
+
 from django.db import models
 from django.db.models import Count, Exists, F, Max, OuterRef, Q
+from django.utils.text import slugify
 
 from filingcabinet import get_document_model
 
 from .feature_annotation import TYPE_MANUAL, FeatureAnnotation
 from .feature_annotation_draft import FeatureAnnotationDraft
 
+logger = logging.getLogger(__file__)
 Document = get_document_model()
 
 
@@ -76,11 +80,18 @@ class FeatureManager(models.Manager):
         return Document.objects.none()
 
 
+def get_upload_modelfile_path(instance, filename):
+    return "fcdocs-models/%s/%s" % (slugify(instance.name), filename)
+
+
 class Feature(models.Model):
     name = models.CharField(max_length=500)
     question = models.CharField(max_length=500)
     description = models.TextField(blank=True)
     documents_needed = models.PositiveIntegerField(default=10)
+    model_path = models.FileField(
+        upload_to=get_upload_modelfile_path, max_length=500, blank=True
+    )
 
     objects = FeatureManager()
 

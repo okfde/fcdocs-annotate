@@ -1,9 +1,11 @@
+import json
 import random
 
 from django.contrib.sessions.models import Session
 from django.db import IntegrityError
 from django.db.models import Max
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 from django.views.generic import DetailView, TemplateView
 
@@ -12,6 +14,7 @@ from filingcabinet.views import get_document_viewer_context, get_viewer_preferen
 
 from .forms import SkipDocumentForm, feature_annotation_draft_formset
 from .models import Feature
+from .tasks import predict_feature_for_document_url
 
 Document = get_document_model()
 
@@ -105,3 +108,15 @@ class AnnotateDocumentView(DetailView):
                         except IntegrityError:
                             pass
         return HttpResponseRedirect(self.request.path_info)
+
+
+def predict_feature(request, feature_id):
+    feature = get_object_or_404(Feature, id=feature_id)
+    data = json.loads(request.body)
+    try:
+        document_url = data["document_url"]
+        callback_url = data["callback_url"]
+    except KeyError:
+        return HttpResponseBadRequest("Missing document_url or callback_url")
+    predict_feature_for_document_url.delay(feature.id, document_url, callback_url)
+    return HttpResponse("OK")

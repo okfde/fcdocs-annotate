@@ -7,5 +7,11 @@ djangorestframework
 django-taggit
 dj-database-url
 python-dotenv
+kedro
+pandas
+sklearn
+spacy
+torch
+torchvision
 
 -e git+https://github.com/okfde/django-filingcabinet.git@main#egg=django-filingcabinet

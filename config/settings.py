@@ -66,7 +66,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "config/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -120,8 +120,6 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -144,11 +142,6 @@ FILINGCABINET_DOCUMENTCOLLECTION_MODEL = "filingcabinet.DocumentCollection"
 FILINGCABINET_MEDIA_PUBLIC_PREFIX = "docs"
 FILINGCABINET_MEDIA_PRIVATE_PREFIX = "docs-private"
 
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-CELERY_TASK_ALWAYS_EAGER = True
-
-CELERY_TASK_ROUTES = {"filingcabinet.tasks.*": {"queue": "document"}}
-CELERY_TIMEZONE = "UTC"
 TESSERACT_DATA_PATH = values.Value("/usr/local/share/tessdata")
 
 FCDOCS_ANNOTATE_PUBLISH_DOCUMENTS = True
@@ -157,3 +150,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
 }
+
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+
+FILINGCABINET_ENABLE_WEBP = False
