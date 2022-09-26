@@ -5,13 +5,12 @@ from contextlib import contextmanager
 import pandas as pd
 from fcdocs.extras.datasets.document_dataset import DocumentDataSet
 from fcdocs.pipelines.classifier.model_dataset import ModelDataSet
-from kedro.io import Version
 
 from .models import TYPE_AUTOMATED, FeatureAnnotation
 
 
 def create_feature_annotations(feature, documents):
-    with get_prediction_model(feature.model_path) as model:
+    with get_prediction_model(feature.model_path.path) as model:
         for doc in documents:
             prediction = run_classification(model, doc.pdf_file.path)
             FeatureAnnotation.objects.update_or_create(
@@ -36,6 +35,5 @@ def get_prediction_model(model_path):
                 zip_ref.extractall(real_model_path)
         model_path = real_model_path
 
-    version = Version(None, None)
-    model = ModelDataSet(model_path, version).load()
+    model = ModelDataSet(model_path, None).load()
     yield model
