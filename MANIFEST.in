@@ -1,0 +1,2 @@
+include README.md LICENSE.md
+recursive-include fcdocs_annotate/annotation/templates *
