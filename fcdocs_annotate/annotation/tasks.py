@@ -46,7 +46,7 @@ def predict_feature_for_document_url(feature_id, document_url, callback_url):
     except Feature.DoesNotExist:
         return
 
-    with prediction.get_prediction_model(feature.model_path) as model:
+    with prediction.get_prediction_model(feature.model_path.path) as model:
         with tempfile.NamedTemporaryFile() as tmp_file:
             response = requests.get(document_url, stream=True)
             for chunk in response.iter_content(chunk_size=128):
