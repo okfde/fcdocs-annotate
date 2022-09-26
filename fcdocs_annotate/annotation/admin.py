@@ -4,8 +4,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from filingcabinet import get_document_model
-
 from .forms import PredictFeatureForm
 from .models import TYPE_MANUAL, Feature, FeatureAnnotation, FeatureAnnotationDraft
 from .tasks import predict_feature_for_documents
@@ -91,7 +89,3 @@ predict_feature.short_description = "Predict feature"
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(FeatureAnnotationDraft, FeatureAnnotationDraftAdmin)
 admin.site.register(FeatureAnnotation, FeatureAnnotationAdmin)
-
-Document = get_document_model()
-admin.site._registry[Document].predict_feature = predict_feature
-admin.site._registry[Document].actions += ["predict_feature"]
