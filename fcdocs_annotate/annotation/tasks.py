@@ -53,4 +53,12 @@ def predict_feature_for_document_url(feature_id, document_url, callback_url):
                 tmp_file.write(chunk)
             tmp_file.flush()
             result = prediction.run_classification(model, tmp_file.name)
-            requests.post(callback_url, json={"result": result})
+            requests.post(
+                callback_url,
+                json={
+                    "callback_url": callback_url,
+                    "feature_id": feature_id,
+                    "document_url": document_url,
+                    "result": result,
+                },
+            )
