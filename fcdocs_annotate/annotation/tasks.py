@@ -32,8 +32,8 @@ def predict_feature_for_documents(feature_id, document_ids):
     prediction.create_feature_annotations(feature, documents)
 
 
-@shared_task
-def predict_feature_for_document_url(feature_id, document_url, callback_url):
+@shared_task(bind=True)
+def predict_feature_for_document_url(self, feature_id, document_url, callback_url):
     """
     Download file to temporary file with requests, predict feature
     and send result back to webhook callback URL.
@@ -58,6 +58,7 @@ def predict_feature_for_document_url(feature_id, document_url, callback_url):
                 json={
                     "callback_url": callback_url,
                     "feature_id": feature_id,
+                    "task_id": self.request.id,
                     "document_url": document_url,
                     "result": result,
                 },

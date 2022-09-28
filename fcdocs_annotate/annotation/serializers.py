@@ -17,3 +17,8 @@ class FeatureSerializer(serializers.ModelSerializer):
             "true": true_annotations.values_list("document", flat=True),
             "false": false_annotations.values_list("document", flat=True),
         }
+
+
+class PredictionServiceSerializer(serializers.Serializer):
+    document_url = serializers.URLField()
+    callback_url = serializers.URLField()
