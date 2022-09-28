@@ -9,7 +9,8 @@ For a final annotation, at least two identical annotations from two different us
 Technically, this means that there are four different tables:
 
 ### Documents
-we use [django-filingcabinet](https://github.com/okfde/django-filingcabinet)
+We use [django-filingcabinet](https://github.com/okfde/django-filingcabinet).
+Refer there for installation instructions.
 
 ### Features
 The features that can be annotated and how many documents with a certain feature are needed.
@@ -19,50 +20,3 @@ Annotations created by the user. Users are recognised by session. Each user may 
 
 ### FeatureAnnotation
 Final annotations that can be queried via the API and can be further used.
-
-
-## Installation
-
-1. Make sure system dependencies are installed. They are defined in [`django-filingcabinet's default.nix`](https://github.com/okfde/django-filingcabinet/blob/master/default.nix).
-
-1.  Clone the Git repository and change into the newly created project directory:
-
-        git clone git@github.com:okfde/fcdocs-annotate.git
-        cd fcdocs-annotate
-
-1.  Create a virtual environment:
-
-        python3 -m venv venv
-
-1.  Activate the newly created virtualenv.
-
-        source venv/bin/activate
-
-1.  Set the environment variables. Copy the sample file and edit if needed.
-
-        cp .env-sample .env
-
-1.  Install all dependencies.
-
-        pip install -r requirements.txt
-        python -m spacy download de_core_news_sm
-
-1.  Build frontend
-
-        npm install
-        yarn build
-
-1.  Let Django create all required database tables:
-
-        ./manage.py migrate
-
-1.  Create admin user:
-
-        ./manage.py createsuperuser
-
-1.  Start Django's development webserver:
-
-        ./manage.py runserver
-
-1.  Open your browser and browse to localhost:8000
-
