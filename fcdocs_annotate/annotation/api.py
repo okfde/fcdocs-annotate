@@ -24,6 +24,14 @@ class FeatureViewSet(viewsets.ReadOnlyModelViewSet):
                 serializer.validated_data["document_url"],
                 serializer.validated_data["callback_url"],
             )
-            return Response({"status": "pending", "task_id": str(pending_task.id)})
+            return Response(
+                {
+                    "feature_id": feature.id,
+                    "document_url": serializer.validated_data["document_url"],
+                    "callback_url": serializer.validated_data["callback_url"],
+                    "status": "pending",
+                    "task_id": str(pending_task.id),
+                }
+            )
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
