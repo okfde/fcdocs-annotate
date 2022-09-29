@@ -21,7 +21,7 @@ def create_feature_annotations(feature, documents):
 
 def run_classification(model, pdf_file_path):
     document = DocumentDataSet(pdf_file_path).load()
-    return bool(model.predict(pd.DataFrame([document]))[0])
+    return bool(model.predict(pd.DataFrame([document]))[0][0])
 
 
 @contextmanager
