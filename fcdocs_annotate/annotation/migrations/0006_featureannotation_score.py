@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('fcdocs_annotation', '0005_alter_feature_model_path_and_more'),
+        ("fcdocs_annotation", "0005_alter_feature_model_path_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='featureannotation',
-            name='score',
+            model_name="featureannotation",
+            name="score",
             field=models.FloatField(null=True),
         ),
     ]
