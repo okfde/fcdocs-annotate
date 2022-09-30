@@ -1,10 +1,5 @@
-{% extends 'filingcabinet/document_detail.html' %}
+{% extends 'filingcabinet/base.html' %}
 {% load static i18n %}
-
-{% block css %}
-{{ block.super }}
-<link href="{% static 'css/fcdocs_annotate.css' %}" rel="stylesheet">
-{% endblock %}
 
 {% block body %}
     {% if object %}
@@ -69,5 +64,5 @@
     </div>
     {% endif %}
 
-
 {% endblock %}
+
