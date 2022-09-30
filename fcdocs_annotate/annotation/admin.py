@@ -14,6 +14,7 @@ class FeatureAnnotationAdmin(admin.ModelAdmin):
     list_display = (
         "get_document_title",
         "value",
+        "score",
         "feature",
     )
     list_filter = ("feature", "type")

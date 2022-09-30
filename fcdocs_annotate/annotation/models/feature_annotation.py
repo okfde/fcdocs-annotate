@@ -64,6 +64,7 @@ class FeatureAnnotation(AbstractAnnotation):
         choices=FEATURE_ANNOTATION_TYPES,
         default=TYPE_MANUAL,
     )
+    score = models.FloatField(null=True)
 
     objects = AnnotationDocumentsManager()
 
