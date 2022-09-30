@@ -12,16 +12,21 @@ from .models import TYPE_AUTOMATED, FeatureAnnotation
 def create_feature_annotations(feature, documents):
     with get_prediction_model(feature.model_path.path) as model:
         for doc in documents:
-            prediction = run_classification(model, doc.pdf_file.path)
+            prediction, score = run_classification(model, doc.pdf_file.path)
             FeatureAnnotation.objects.update_or_create(
                 defaults={"document": doc, "feature": feature, "type": TYPE_AUTOMATED},
-                value=True if prediction else False,
+                value=prediction,
+                score=score,
             )
 
 
 def run_classification(model, pdf_file_path):
     document = DocumentDataSet(pdf_file_path).load()
-    return bool(model.predict(pd.DataFrame([document]))[0][0])
+    prediction, score = model.predict(pd.DataFrame([document]))[0]
+    # convert from numpy types to python types
+    prediction = bool(prediction)
+    score = float(score)
+    return prediction, score
 
 
 @contextmanager

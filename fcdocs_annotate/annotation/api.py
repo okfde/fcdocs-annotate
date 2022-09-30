@@ -30,7 +30,10 @@ class FeatureViewSet(viewsets.ReadOnlyModelViewSet):
                     "document_url": serializer.validated_data["document_url"],
                     "callback_url": serializer.validated_data["callback_url"],
                     "status": "pending",
+                    "details": "",
                     "task_id": str(pending_task.id),
+                    "result": None,
+                    "score": None,
                 }
             )
         else:

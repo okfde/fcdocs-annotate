@@ -44,6 +44,7 @@ def predict_feature_for_document_url(self, feature_id, document_url, callback_ur
         "callback_url": callback_url,
         "task_id": str(self.request.id),
         "result": None,
+        "score": None,
     }
     prediction = get_prediction_module()
     if prediction is None:
@@ -64,7 +65,9 @@ def predict_feature_for_document_url(self, feature_id, document_url, callback_ur
                 for chunk in response.iter_content(chunk_size=128):
                     tmp_file.write(chunk)
                 tmp_file.flush()
-                data["result"] = prediction.run_classification(model, tmp_file.name)
+                data["result"], data["score"] = prediction.run_classification(
+                    model, tmp_file.name
+                )
     except Exception as e:
         logger.exception(e)
         _post_result(data, "failed", str(e))
