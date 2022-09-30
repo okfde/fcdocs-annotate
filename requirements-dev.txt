@@ -101,7 +101,7 @@ kombu==5.2.4
     # via celery
 lxml==4.8.0
     # via pikepdf
-mako==1.2.0
+mako==1.2.2
     # via pytest-factoryboy
 markupsafe==2.1.1
     # via mako

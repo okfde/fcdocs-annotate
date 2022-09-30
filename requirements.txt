@@ -131,7 +131,7 @@ jinja2-time==0.2.0
     # via cookiecutter
 jmespath==0.10.0
     # via kedro
-joblib==1.1.0
+joblib==1.2.0
     # via scikit-learn
 jsonschema==4.4.0
     # via django-filingcabinet
