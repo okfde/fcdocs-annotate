@@ -44,7 +44,7 @@ distlib==0.3.4
     # via virtualenv
 dj-database-url==0.5.0
     # via -r requirements.in
-django==3.2.13
+django==3.2.15
     # via
     #   -r requirements.in
     #   django-celery-beat
@@ -99,7 +99,7 @@ jsonschema==4.5.1
     # via django-filingcabinet
 kombu==5.2.4
     # via celery
-lxml==4.8.0
+lxml==4.9.1
     # via pikepdf
 mako==1.2.2
     # via pytest-factoryboy
