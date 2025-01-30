@@ -91,7 +91,7 @@ distlib==0.3.4
     # via virtualenv
 dj-database-url==0.5.0
     # via fcdocs-annotate (pyproject.toml)
-django==3.2.15
+django==4.2.18
     # via
     #   fcdocs-annotate (pyproject.toml)
     #   django-celery-beat
@@ -116,7 +116,7 @@ django-taggit==3.0.0
     # via
     #   fcdocs-annotate (pyproject.toml)
     #   django-filingcabinet
-django-timezone-field==4.2.3
+django-timezone-field==7.1
     # via django-celery-beat
 django-treebeard==4.7.1
     # via django-filingcabinet
@@ -342,8 +342,6 @@ pytoolconfig==1.2.2
 pytz==2022.1
     # via
     #   celery
-    #   django
-    #   django-timezone-field
     #   djangorestframework
     #   pandas
 pyyaml==6.0
