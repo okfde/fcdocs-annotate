@@ -35,7 +35,7 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.setuptools.packages.find]
-include = ["fcdocs_annotate"]
+include = ["fcdocs_annotate.*"]
 
 [tool.ruff]
 exclude = ["migrations", "node_modules"]
