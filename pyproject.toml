@@ -1,0 +1,49 @@
+[project]
+name = "fcdocs_annotate"
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = [
+    "celery",
+    "Django~=4.2",
+    "django_celery_beat",
+    "django-configurations",
+    "django-filingcabinet",
+    "djangorestframework",
+    "django-taggit",
+    "dj-database-url",
+    "python-dotenv",
+    "kedro",
+    "pandas",
+    "scikit-learn",
+    "spacy",
+    "torch",
+    "torchvision",
+    "django-filingcabinet @ git+https://github.com/okfde/django-filingcabinet.git@main",
+]
+
+[project.optional-dependencies]
+dev = ["pre-commit", "pytest", "pytest-factoryboy", "pytest-django"]
+
+[tool.uv.pip]
+universal = true
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools.packages.find]
+include = ["fcdocs_annotate"]
+
+[tool.ruff]
+exclude = ["migrations", "node_modules"]
+
+[tool.ruff.lint]
+ignore = ["E501", "C901"]
+select = ["C", "E", "F", "W", "B", "I001"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
