@@ -85,7 +85,7 @@ django-celery-beat==2.7.0
     # via fcdocs-annotate (pyproject.toml)
 django-configurations==2.3.2
     # via fcdocs-annotate (pyproject.toml)
-django-filingcabinet @ git+https://github.com/okfde/django-filingcabinet.git@32fad57a4af51908d5df09af84510aaf021c6073
+django-filingcabinet @ git+https://github.com/okfde/django-filingcabinet.git@7fc96c2d97bbe4b0eafe5df861cbd73f511c4fd3
     # via fcdocs-annotate (pyproject.toml)
 django-filter==21.1
     # via django-filingcabinet
